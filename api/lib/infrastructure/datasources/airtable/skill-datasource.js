@@ -9,6 +9,11 @@ module.exports = {
       .then((airtableRawObject) => airTableDataObjects.Skill.fromAirTableObject(airtableRawObject));
   },
 
+  list() {
+    return airtable.findRecords(AIRTABLE_TABLE_NAME, {})
+      .then((airtableRawObjects) => airtableRawObjects.map(airTableDataObjects.Skill.fromAirTableObject));
+  },
+
   findByRecordIds(skillRecordIds) {
 
     const listOfAirtableFilters = skillRecordIds.map((recordId) => {
