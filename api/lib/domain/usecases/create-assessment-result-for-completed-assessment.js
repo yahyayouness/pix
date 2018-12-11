@@ -15,7 +15,7 @@ const CERTIFICATION_VALIDATED = 'validated';
 const CERTIFICATION_REJECTED = 'rejected';
 const NOT_VALIDATED_CERTIF_LEVEL = -1;
 
-module.exports = function createAssessmentResultForCompletedCertification({
+module.exports = function createAssessmentResultForCompletedAssessment({
   // Parameters
   assessmentId,
   forceRecomputeResult = false,
@@ -48,7 +48,7 @@ module.exports = function createAssessmentResultForCompletedCertification({
         assessmentService.getCompetenceMarks(assessment),
       ]);
     })
-    .then(([skills, mark]) => _saveCertificationResult({
+    .then(([skills, mark]) => _saveResult({
       assessment,
       assessmentId,
       mark,
@@ -69,7 +69,7 @@ module.exports = function createAssessmentResultForCompletedCertification({
     }));
 };
 
-function _saveCertificationResult({
+function _saveResult({
   // Parameters
   assessment,
   assessmentId,
@@ -103,7 +103,7 @@ function _saveCertificationResult({
 
       return Promise.all(saveMarksPromises);
     })
-    .then(() => _updateCompletedDateOfCertification(assessment, certificationCourseRepository));
+    .then(() => _updateCompletedDateIfCertification(assessment, certificationCourseRepository));
 }
 
 function _getAssessmentResultEvaluations(marks, assessmentType) {
@@ -137,7 +137,7 @@ function _limitMarkLevel(mark, assessment) {
   return mark;
 }
 
-function _updateCompletedDateOfCertification(assessment, certificationCourseRepository) {
+function _updateCompletedDateIfCertification(assessment, certificationCourseRepository) {
   if (assessment.isCertificationAssessment()) {
     return certificationCourseRepository.changeCompletionDate(
       assessment.courseId,
@@ -167,5 +167,5 @@ function _saveResultAfterComputingError({
     assessmentResultRepository.save(assessmentResult),
     assessmentRepository.save(assessment),
   ])
-    .then(() => _updateCompletedDateOfCertification(assessment, certificationCourseRepository));
+    .then(() => _updateCompletedDateIfCertification(assessment, certificationCourseRepository));
 }
