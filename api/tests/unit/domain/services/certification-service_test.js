@@ -11,7 +11,7 @@ const CompetenceMarks = require('../../../../lib/domain/models/CompetenceMark');
 
 const { CertificationComputeError, UserNotAuthorizedToCertifyError } = require('../../../../lib/domain/errors');
 
-const userService = require('../../../../lib/domain/services/user-service');
+const usecases = require('../../../../lib/domain/usecases');
 const certificationChallengesService = require('../../../../lib/domain/services/certification-challenges-service');
 const assessmentRepository = require('../../../../lib/infrastructure/repositories/assessment-repository');
 const assessmentResultRepository = require('../../../../lib/infrastructure/repositories/assessment-result-repository');
@@ -1188,7 +1188,7 @@ describe('Unit | Service | Certification Service', function() {
 
   });
 
-  describe('#startNewCertification', () => {
+  describe.only('#startNewCertification', () => {
 
     let clock;
     let sandbox;
@@ -1234,7 +1234,8 @@ describe('Unit | Service | Certification Service', function() {
       it(`should not create a new certification if ${testCase.label}`, function() {
         // given
         const userId = 12345;
-        sandbox.stub(userService, 'getProfileToCertify').resolves(testCase.competences);
+
+        sandbox.stub(usecases, 'getProfileToCertify').resolves(testCase.competences);
         sandbox.stub(certificationCourseRepository, 'save');
 
         // when
@@ -1252,9 +1253,8 @@ describe('Unit | Service | Certification Service', function() {
       // given
       const userId = 12345;
       sandbox.stub(certificationCourseRepository, 'save').resolves(certificationCourse);
-      sandbox.stub(userService, 'getProfileToCertify').resolves(fiveCompetencesWithLevelHigherThan0);
+      sandbox.stub(usecases, 'getProfileToCertify').resolves(fiveCompetencesWithLevelHigherThan0);
       sandbox.stub(certificationChallengesService, 'saveChallenges').resolves(certificationCourseWithNbOfChallenges);
-
       // when
       const promise = certificationService.startNewCertification(userId, sessionId);
 
@@ -1270,7 +1270,7 @@ describe('Unit | Service | Certification Service', function() {
       // given
       const userId = 12345;
       sandbox.stub(certificationCourseRepository, 'save').resolves(certificationCourse);
-      sandbox.stub(userService, 'getProfileToCertify').resolves(fiveCompetencesWithLevelHigherThan0);
+      sandbox.stub(usecases, 'getProfileToCertify').resolves(fiveCompetencesWithLevelHigherThan0);
       sandbox.stub(certificationChallengesService, 'saveChallenges').resolves(certificationCourseWithNbOfChallenges);
 
       // when
@@ -1278,7 +1278,7 @@ describe('Unit | Service | Certification Service', function() {
 
       // then
       return promise.then((newCertification) => {
-        expect(userService.getProfileToCertify).to.have.been.calledWith(userId, '2018-02-04T00:00:00.000Z');
+        expect(usecases.getProfileToCertify).to.have.been.calledWith({ userId, limitDate: '2018-02-04T00:00:00.000Z' });
         sinon.assert.calledOnce(certificationChallengesService.saveChallenges);
         expect(certificationChallengesService.saveChallenges).to.have.been.calledWith(fiveCompetencesWithLevelHigherThan0, certificationCourse);
         expect(newCertification.nbChallenges).to.equal(3);

@@ -445,7 +445,7 @@ describe('Unit | Controller | user-controller', () => {
       sandbox = sinon.sandbox.create();
 
       sandbox.stub(userService, 'isUserExistingById').resolves(true);
-      sandbox.stub(userService, 'getProfileToCertify').resolves([]);
+      sandbox.stub(usecases, 'getProfileToCertify').resolves([]);
       sandbox.stub(Boom, 'badRequest').returns(jsonAPI404error);
       sandbox.stub(Boom, 'badImplementation').returns(jsonAPI500error);
       sandbox.stub(logger, 'error').returns({});
@@ -463,7 +463,7 @@ describe('Unit | Controller | user-controller', () => {
       it('should reply with an INTERNAL error', () => {
         // given
         const anyErrorFromProfileBuilding = new Error();
-        userService.getProfileToCertify.rejects(anyErrorFromProfileBuilding);
+        usecases.getProfileToCertify.rejects(anyErrorFromProfileBuilding);
 
         // when
         const promise = userController.getProfileToCertify(request, replyStub);
@@ -481,7 +481,7 @@ describe('Unit | Controller | user-controller', () => {
       it('should log the error', () => {
         // given
         const anyErrorFromProfileBuilding = new Error();
-        userService.getProfileToCertify.rejects(anyErrorFromProfileBuilding);
+        usecases.getProfileToCertify.rejects(anyErrorFromProfileBuilding);
 
         // when
         const promise = userController.getProfileToCertify(request, replyStub);
@@ -508,17 +508,19 @@ describe('Unit | Controller | user-controller', () => {
 
       it('should load his current achieved assessments', () => {
         // when
+        usecases.getProfileToCertify.resolves();
         const promise = userController.getProfileToCertify(request, replyStub);
 
         // then
         return promise.then(() => {
-          sinon.assert.calledOnce(userService.getProfileToCertify);
-          sinon.assert.calledWith(userService.getProfileToCertify, 1, '1970-01-01T00:00:00.000Z');
+          sinon.assert.calledOnce(usecases.getProfileToCertify);
+          sinon.assert.calledWith(usecases.getProfileToCertify, { userId: 1, limitDate: '1970-01-01T00:00:00.000Z' });
         });
       });
 
       it('should reply the skillProfile', () => {
         // when
+        usecases.getProfileToCertify.resolves([]);
         const promise = userController.getProfileToCertify(request, replyStub);
 
         // then

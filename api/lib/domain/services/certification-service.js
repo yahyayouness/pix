@@ -10,12 +10,12 @@ const moment = require('moment');
 const AnswerStatus = require('../models/AnswerStatus');
 const CertificationCourse = require('../../domain/models/CertificationCourse');
 const CertificationContract = require('../../domain/models/CertificationContract');
+const usecases = require('../usecases');
 
 const { CertificationComputeError, UserNotAuthorizedToCertifyError } = require('../../../lib/domain/errors');
 
 const answerServices = require('./answer-service');
 const certificationChallengesService = require('../../../lib/domain/services/certification-challenges-service');
-const userService = require('../../../lib/domain/services/user-service');
 
 const answersRepository = require('../../../lib/infrastructure/repositories/answer-repository');
 const assessmentRepository = require('../../../lib/infrastructure/repositories/assessment-repository');
@@ -66,6 +66,7 @@ function _numberOfCorrectAnswersPerCompetence(answersWithCompetences, competence
     if (!challenge && !continueOnError) {
       throw new CertificationComputeError('Problème de chargement du challenge ' + answer.challengeId);
     }
+    // COMMENT-254 : Si trois questions posé, il n'y a plus besoin de faire la différence avec le QROCMdep, et donc d'importer aussi les challenges :)
 
     const answerResult = answer.result;
     if (answersForCompetence.length < 3 && _isQROCMdepOk(challenge, answer)) {
@@ -297,8 +298,8 @@ module.exports = {
   startNewCertification(userId, sessionId) {
     let userCompetencesToCertify;
     const newCertificationCourse = new CertificationCourse({ userId, sessionId });
-
-    return userService.getProfileToCertify(userId, moment().toISOString())
+    console.log(usecases.getProfileToCertify);
+    return usecases.getProfileToCertify({ userId, limitDate: moment().toISOString() })
       .then((userCompetences) => {
         userCompetencesToCertify = userCompetences;
         return _checkIfUserCanStartACertification(userCompetences);

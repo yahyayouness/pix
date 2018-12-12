@@ -7,7 +7,6 @@ const userSerializer = require('../../infrastructure/serializers/jsonapi/user-se
 const campaignParticipationSerializer = require('../../infrastructure/serializers/jsonapi/campaign-participation-serializer');
 const membershipSerializer = require('../../infrastructure/serializers/jsonapi/membership-serializer');
 const validationErrorSerializer = require('../../infrastructure/serializers/jsonapi/validation-error-serializer');
-const userService = require('../../domain/services/user-service');
 const userRepository = require('../../../lib/infrastructure/repositories/user-repository');
 const profileService = require('../../domain/services/profile-service');
 const profileSerializer = require('../../infrastructure/serializers/jsonapi/profile-serializer');
@@ -140,9 +139,9 @@ module.exports = {
 
   getProfileToCertify(request, reply) {
     const userId = request.params.id;
-    const currentDate = moment().toISOString();
+    const limitDate = moment().toISOString();
 
-    return userService.getProfileToCertify(userId, currentDate)
+    return usecases.getProfileToCertify({ userId, limitDate })
       .then(reply)
       .catch((err) => {
         logger.error(err);
