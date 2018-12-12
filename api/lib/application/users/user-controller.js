@@ -141,7 +141,7 @@ module.exports = {
     const userId = request.params.id;
     const limitDate = moment().toISOString();
 
-    return usecases.getProfileToCertify({ userId, limitDate })
+    return usecases.getProfileToCertify({ userId, limitDate, onlyGetProfileToCertify: true })
       .then(reply)
       .catch((err) => {
         logger.error(err);

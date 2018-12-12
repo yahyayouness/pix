@@ -514,7 +514,7 @@ describe('Unit | Controller | user-controller', () => {
         // then
         return promise.then(() => {
           sinon.assert.calledOnce(usecases.getProfileToCertify);
-          sinon.assert.calledWith(usecases.getProfileToCertify, { userId: 1, limitDate: '1970-01-01T00:00:00.000Z' });
+          sinon.assert.calledWith(usecases.getProfileToCertify, { userId: 1, limitDate: '1970-01-01T00:00:00.000Z', onlyGetProfileToCertify: true });
         });
       });
 

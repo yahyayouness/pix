@@ -7,6 +7,7 @@ const AssessmentResult = require('../../../../lib/domain/models/AssessmentResult
 const Skill = require('../../../../lib/domain/models/Skill');
 const Challenge = require('../../../../lib/domain/models/Challenge');
 const Competence = require('../../../../lib/domain/models/Competence');
+const { UserNotAuthorizedToCertifyError } = require('../../../../lib/domain/errors');
 
 describe('Unit | Domain | Use Cases | getProfileToCertify', () => {
 
@@ -15,6 +16,8 @@ describe('Unit | Domain | Use Cases | getProfileToCertify', () => {
   const answerRepository= { findCorrectAnswersByAssessment:sinon.stub().resolves() };
   const competenceRepository= { list:sinon.stub().resolves() };
   const courseRepository= { getAdaptiveCourses:sinon.stub().resolves() };
+  const certificationCourseRepository = { save: sinon.stub().resolves() };
+  const certificationChallengesService = { saveChallenges: sinon.stub().resolves() };
 
   let sandbox;
   const userId = 63731;
@@ -110,466 +113,516 @@ describe('Unit | Domain | Use Cases | getProfileToCertify', () => {
     sandbox.restore();
   });
 
-  it('should load achieved assessments', () => {
-    // when
-    const promise = getProfileToCertify({ userId, limitDate: '2020-10-27 08:44:25', answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+  context('when we only want getProfileToCertify without save it', () => {
 
-    // then
-    return promise.then(() => {
-      sinon.assert.calledOnce(assessmentRepository.findLastCompletedAssessmentsForEachCoursesByUser);
-      sinon.assert.calledWith(assessmentRepository.findLastCompletedAssessmentsForEachCoursesByUser, userId, '2020-10-27 08:44:25');
-    });
-  });
-
-  it('should list available challenges', () => {
-    // when
-    const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-    // then
-    return promise.then(() => {
-      sinon.assert.called(challengeRepository.list);
-    });
-  });
-
-  it('should list right answers for every assessment fulfilled', () => {
-    // when
-    const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-    // then
-    return promise.then(() => {
-      sinon.assert.called(answerRepository.findCorrectAnswersByAssessment);
-    });
-  });
-
-  it('should not list right answers for assessments that have an estimated level null or 1', () => {
-    // when
-    const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-    // then
-    return promise.then(() => {
-      sinon.assert.neverCalledWith(answerRepository.findCorrectAnswersByAssessment, assessment3.id);
-    });
-  });
-
-  it('should list available competences', () => {
-    // when
-    const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-    // then
-    return promise.then(() => {
-      sinon.assert.called(competenceRepository.list);
-    });
-  });
-
-  context('when all informations needed are collected', () => {
-
-    it('should assign skill to related competence', () => {
-      // given
-      const answerInstance = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
-      const answerCollectionWithOneAnswer = AnswerCollection.forge([answerInstance]);
-
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithOneAnswer);
-
+    it('should load achieved assessments', () => {
       // when
-      const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+      const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, limitDate: '2020-10-27 08:44:25', answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
 
       // then
-      return promise.then((skillProfile) => {
-        expect(skillProfile).to.deep.equal([
-          {
-            id: 'competenceRecordIdOne',
-            index: '1.1',
-            name: '1.1 Construire un flipper',
-            skills: [],
-            pixScore: 12,
-            estimatedLevel: 1,
-            challenges: []
-          },
-          {
-            id: 'competenceRecordIdTwo',
-            index: '1.2',
-            name: '1.2 Adopter un dauphin',
-            skills: [skillRemplir2],
-            pixScore: 23,
-            estimatedLevel: 2,
-            challenges: [challengeForSkillRemplir2]
-          }]);
+      return promise.then(() => {
+        sinon.assert.calledOnce(assessmentRepository.findLastCompletedAssessmentsForEachCoursesByUser);
       });
     });
 
-    context('when selecting challenges to validate the skills per competence', () => {
+    it('should list available challenges', () => {
+      // when
+      const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
 
-      context('when no challenge validate the skill', () => {
+      // then
+      return promise.then(() => {
+        sinon.assert.called(challengeRepository.list);
+      });
+    });
 
-        it('should not return the skill', () => {
-          // given
-          const answerOfOldChallenge = new BookshelfAnswer({
-            challengeId: oldChallengeWithAlreadyValidatedSkill.id,
-            result: 'ok'
-          });
-          const answerCollectionWithOneAnswer = AnswerCollection.forge([answerOfOldChallenge]);
+    it('should list right answers for every assessment fulfilled', () => {
+      // when
+      const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
 
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithOneAnswer);
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithEmptyData);
+      // then
+      return promise.then(() => {
+        sinon.assert.called(answerRepository.findCorrectAnswersByAssessment);
+      });
+    });
 
-          // when
-          const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+    it('should not list right answers for assessments that have an estimated level null or 1', () => {
+      // when
+      const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
 
-          // then
-          return promise.then((skillProfile) => {
-            expect(skillProfile).to.deep.equal([{
+      // then
+      return promise.then(() => {
+        sinon.assert.neverCalledWith(answerRepository.findCorrectAnswersByAssessment, assessment3.id);
+      });
+    });
+
+    it('should list available competences', () => {
+      // when
+      const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+      // then
+      return promise.then(() => {
+        sinon.assert.called(competenceRepository.list);
+      });
+    });
+
+    context('when all informations needed are collected', () => {
+
+      it('should assign skill to related competence', () => {
+        // given
+        const answerInstance = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
+        const answerCollectionWithOneAnswer = AnswerCollection.forge([answerInstance]);
+
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithOneAnswer);
+
+        // when
+        const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+        // then
+        return promise.then((skillProfile) => {
+          expect(skillProfile).to.deep.equal([
+            {
               id: 'competenceRecordIdOne',
               index: '1.1',
               name: '1.1 Construire un flipper',
+              skills: [],
               pixScore: 12,
               estimatedLevel: 1,
-              skills: [],
               challenges: []
-            }, {
+            },
+            {
               id: 'competenceRecordIdTwo',
               index: '1.2',
               name: '1.2 Adopter un dauphin',
+              skills: [skillRemplir2],
               pixScore: 23,
               estimatedLevel: 2,
+              challenges: [challengeForSkillRemplir2]
+            }]);
+        });
+      });
+
+      context('when selecting challenges to validate the skills per competence', () => {
+
+        context('when no challenge validate the skill', () => {
+
+          it('should not return the skill', () => {
+            // given
+            const answerOfOldChallenge = new BookshelfAnswer({
+              challengeId: oldChallengeWithAlreadyValidatedSkill.id,
+              result: 'ok'
+            });
+            const answerCollectionWithOneAnswer = AnswerCollection.forge([answerOfOldChallenge]);
+
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithOneAnswer);
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithEmptyData);
+
+            // when
+            const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+            // then
+            return promise.then((skillProfile) => {
+              expect(skillProfile).to.deep.equal([{
+                id: 'competenceRecordIdOne',
+                index: '1.1',
+                name: '1.1 Construire un flipper',
+                pixScore: 12,
+                estimatedLevel: 1,
+                skills: [],
+                challenges: []
+              }, {
+                id: 'competenceRecordIdTwo',
+                index: '1.2',
+                name: '1.2 Adopter un dauphin',
+                pixScore: 23,
+                estimatedLevel: 2,
+                skills: [],
+                challenges: []
+              }]);
+            });
+          });
+        });
+
+        context('when only one challenge validate the skill', () => {
+
+          it('should select the same challenge', () => {
+            // given
+            const answer = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
+            const answerCollectionWithOneAnswer = AnswerCollection.forge([answer]);
+
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithOneAnswer);
+
+            // when
+            const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+            // then
+            return promise.then((skillProfile) => {
+              expect(skillProfile).to.deep.equal([
+                {
+                  id: 'competenceRecordIdOne',
+                  index: '1.1',
+                  name: '1.1 Construire un flipper',
+                  skills: [],
+                  pixScore: 12,
+                  estimatedLevel: 1,
+                  challenges: []
+                },
+                {
+                  id: 'competenceRecordIdTwo',
+                  index: '1.2',
+                  name: '1.2 Adopter un dauphin',
+                  skills: [skillRemplir2],
+                  pixScore: 23,
+                  estimatedLevel: 2,
+                  challenges: [challengeForSkillRemplir2]
+                }]);
+            });
+          });
+        });
+
+        context('when three challenges validate the same skill', () => {
+
+          it('should select the unanswered challenge which is published', () => {
+            // given
+            const answer = new BookshelfAnswer({ challengeId: challengeForSkillCitation4.id, result: 'ok' });
+            const answerCollectionWithOneAnswer = AnswerCollection.forge([answer]);
+
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithOneAnswer);
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithEmptyData);
+
+            // when
+            const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+            // then
+            return promise.then((skillProfile) => {
+              expect(skillProfile).to.deep.equal([
+                {
+                  id: 'competenceRecordIdOne',
+                  index: '1.1',
+                  name: '1.1 Construire un flipper',
+                  skills: [skillCitation4],
+                  pixScore: 12,
+                  estimatedLevel: 1,
+                  challenges: [challengeForSkillCitation4AndMoteur3]
+                },
+                {
+                  id: 'competenceRecordIdTwo',
+                  index: '1.2',
+                  name: '1.2 Adopter un dauphin',
+                  skills: [],
+                  pixScore: 23,
+                  estimatedLevel: 2,
+                  challenges: []
+                }]);
+            });
+          });
+
+          it('should select a challenge for every skill', () => {
+            // given
+            const answer = new BookshelfAnswer({ challengeId: challengeForSkillRecherche4.id, result: 'ok' });
+            const answer2 = new BookshelfAnswer({ challengeId: challengeForSkillCitation4AndMoteur3.id, result: 'ok' });
+            const answerCollectionWithTwoAnswers = AnswerCollection.forge([answer, answer2]);
+
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithTwoAnswers);
+            answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithEmptyData);
+
+            // when
+            const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+            // then
+            return promise.then((skillProfile) => {
+              expect(skillProfile).to.deep.equal([
+                {
+                  id: 'competenceRecordIdOne',
+                  index: '1.1',
+                  name: '1.1 Construire un flipper',
+                  skills: [skillCitation4, skillRecherche4, skillMoteur3],
+                  pixScore: 12,
+                  estimatedLevel: 1,
+                  challenges: [challengeForSkillCitation4, challengeForSkillRecherche4, challengeForSkillCitation4AndMoteur3]
+                },
+                {
+                  id: 'competenceRecordIdTwo',
+                  index: '1.2',
+                  name: '1.2 Adopter un dauphin',
+                  skills: [],
+                  pixScore: 23,
+                  estimatedLevel: 2,
+                  challenges: []
+                }]);
+            });
+          });
+        });
+      });
+
+      it('should group skills by competence ', () => {
+        // given
+        const answerA1 = new BookshelfAnswer({ challengeId: challengeForSkillRecherche4.id, result: 'ok' });
+        const answerCollectionA = AnswerCollection.forge([answerA1]);
+
+        const answerB1 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
+        const answerB2 = new BookshelfAnswer({ challengeId: challengeForSkillUrl3.id, result: 'ok' });
+        const answerCollectionB = AnswerCollection.forge([answerB1, answerB2]);
+
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionA);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionB);
+
+        // when
+        const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+        // then
+        return promise.then((skillProfile) => {
+          expect(skillProfile).to.deep.equal([
+            {
+              id: 'competenceRecordIdOne',
+              index: '1.1',
+              name: '1.1 Construire un flipper',
+              skills: [skillRecherche4],
+              pixScore: 12,
+              estimatedLevel: 1,
+              challenges: [challengeForSkillRecherche4]
+            },
+            {
+              id: 'competenceRecordIdTwo',
+              index: '1.2',
+              name: '1.2 Adopter un dauphin',
+              skills: [skillUrl3, skillRemplir2],
+              pixScore: 23,
+              estimatedLevel: 2,
+              challenges: [challengeForSkillUrl3, challengeForSkillRemplir2]
+            }]);
+        });
+      });
+
+      it('should sort in desc grouped skills by competence', () => {
+        // given
+        const answer1 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir4.id, result: 'ok' });
+        const answer2 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
+        const answer3 = new BookshelfAnswer({ challengeId: challengeForSkillUrl3.id, result: 'ok' });
+        const answerCollectionArray = AnswerCollection.forge([answer1, answer2, answer3]);
+
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
+
+        // when
+        const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+        // then
+        return promise.then((skillProfile) => {
+          expect(skillProfile).to.deep.equal([
+            {
+              id: 'competenceRecordIdOne',
+              index: '1.1',
+              name: '1.1 Construire un flipper',
               skills: [],
+              pixScore: 12,
+              estimatedLevel: 1,
+              challenges: []
+            },
+            {
+              id: 'competenceRecordIdTwo',
+              index: '1.2',
+              name: '1.2 Adopter un dauphin',
+              skills: [skillRemplir4, skillUrl3, skillRemplir2],
+              pixScore: 23,
+              estimatedLevel: 2,
+              challenges: [challengeForSkillRemplir4, challengeForSkillUrl3, challengeForSkillRemplir2]
+            }
+          ]);
+        });
+      });
+
+      it('should return the three most difficult skills sorted in desc grouped by competence', () => {
+        // given
+        const answer1 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir4.id, result: 'ok' });
+        const answer2 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
+        const answer3 = new BookshelfAnswer({ challengeId: challengeForSkillUrl3.id, result: 'ok' });
+        const answer4 = new BookshelfAnswer({ challengeId: challengeForSkillWeb1.id, result: 'ok' });
+        const answerCollectionArray = AnswerCollection.forge([answer1, answer2, answer3, answer4]);
+
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
+
+        // when
+        const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+        // then
+        return promise.then((skillProfile) => {
+          expect(skillProfile).to.deep.equal([
+            {
+              id: 'competenceRecordIdOne',
+              index: '1.1',
+              name: '1.1 Construire un flipper',
+              skills: [],
+              pixScore: 12,
+              estimatedLevel: 1,
+              challenges: []
+            },
+            {
+              id: 'competenceRecordIdTwo',
+              index: '1.2',
+              name: '1.2 Adopter un dauphin',
+              skills: [skillRemplir4, skillUrl3, skillRemplir2],
+              pixScore: 23,
+              estimatedLevel: 2,
+              challenges: [challengeForSkillRemplir4, challengeForSkillUrl3, challengeForSkillRemplir2]
+            }
+          ]);
+        });
+      });
+
+      it('should not add a skill twice', () => {
+        // given
+        const answer = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
+        const answerCollectionArray = AnswerCollection.forge([answer, answer]);
+
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
+
+        // when
+        const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+        // then
+        return promise.then((skillProfile) => {
+          expect(skillProfile).to.deep.equal([
+            {
+              id: 'competenceRecordIdOne',
+              index: '1.1',
+              name: '1.1 Construire un flipper',
+              skills: [],
+              pixScore: 12,
+              estimatedLevel: 1,
+              challenges: []
+            },
+            {
+              id: 'competenceRecordIdTwo',
+              index: '1.2',
+              name: '1.2 Adopter un dauphin',
+              skills: [skillRemplir2],
+              pixScore: 23,
+              estimatedLevel: 2,
+              challenges: [challengeForSkillRemplir2]
+            }]);
+        });
+      });
+
+      it('should not assign skill, when the challenge id is not found', () => {
+        // given
+        const answer = new BookshelfAnswer({ challengeId: 'challengeRecordIdThatDoesNotExist', result: 'ok' });
+        const answerCollectionArray = AnswerCollection.forge(answer);
+
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
+
+        // when
+        const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+
+        // then
+        return promise.then((skillProfile) => {
+          expect(skillProfile).to.deep.equal([
+            {
+              id: 'competenceRecordIdOne',
+              index: '1.1',
+              name: '1.1 Construire un flipper',
+              skills: [],
+              pixScore: 12,
+              estimatedLevel: 1,
+              challenges: []
+            },
+            {
+              id: 'competenceRecordIdTwo',
+              index: '1.2',
+              name: '1.2 Adopter un dauphin',
+              skills: [],
+              pixScore: 23,
+              estimatedLevel: 2,
               challenges: []
             }]);
-          });
         });
       });
 
-      context('when only one challenge validate the skill', () => {
+      it('should not assign skill, when the competence is not found', () => {
+        // given
+        const answer = new BookshelfAnswer({ challengeId: 'challengeRecordIdThree', result: 'ok' });
+        const answerCollectionArray = AnswerCollection.forge(answer);
 
-        it('should select the same challenge', () => {
-          // given
-          const answer = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
-          const answerCollectionWithOneAnswer = AnswerCollection.forge([answer]);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
+        answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
 
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithOneAnswer);
+        // when
+        const promise = getProfileToCertify({ onlyGetProfileToCertify: true, userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
 
-          // when
-          const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-          // then
-          return promise.then((skillProfile) => {
-            expect(skillProfile).to.deep.equal([
-              {
-                id: 'competenceRecordIdOne',
-                index: '1.1',
-                name: '1.1 Construire un flipper',
-                skills: [],
-                pixScore: 12,
-                estimatedLevel: 1,
-                challenges: []
-              },
-              {
-                id: 'competenceRecordIdTwo',
-                index: '1.2',
-                name: '1.2 Adopter un dauphin',
-                skills: [skillRemplir2],
-                pixScore: 23,
-                estimatedLevel: 2,
-                challenges: [challengeForSkillRemplir2]
-              }]);
-          });
-        });
-      });
-
-      context('when three challenges validate the same skill', () => {
-
-        it('should select the unanswered challenge which is published', () => {
-          // given
-          const answer = new BookshelfAnswer({ challengeId: challengeForSkillCitation4.id, result: 'ok' });
-          const answerCollectionWithOneAnswer = AnswerCollection.forge([answer]);
-
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithOneAnswer);
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithEmptyData);
-
-          // when
-          const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-          // then
-          return promise.then((skillProfile) => {
-            expect(skillProfile).to.deep.equal([
-              {
-                id: 'competenceRecordIdOne',
-                index: '1.1',
-                name: '1.1 Construire un flipper',
-                skills: [skillCitation4],
-                pixScore: 12,
-                estimatedLevel: 1,
-                challenges: [challengeForSkillCitation4AndMoteur3]
-              },
-              {
-                id: 'competenceRecordIdTwo',
-                index: '1.2',
-                name: '1.2 Adopter un dauphin',
-                skills: [],
-                pixScore: 23,
-                estimatedLevel: 2,
-                challenges: []
-              }]);
-          });
-        });
-
-        it('should select a challenge for every skill', () => {
-          // given
-          const answer = new BookshelfAnswer({ challengeId: challengeForSkillRecherche4.id, result: 'ok' });
-          const answer2 = new BookshelfAnswer({ challengeId: challengeForSkillCitation4AndMoteur3.id, result: 'ok' });
-          const answerCollectionWithTwoAnswers = AnswerCollection.forge([answer, answer2]);
-
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithTwoAnswers);
-          answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionWithEmptyData);
-
-          // when
-          const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-          // then
-          return promise.then((skillProfile) => {
-            expect(skillProfile).to.deep.equal([
-              {
-                id: 'competenceRecordIdOne',
-                index: '1.1',
-                name: '1.1 Construire un flipper',
-                skills: [skillCitation4, skillRecherche4, skillMoteur3],
-                pixScore: 12,
-                estimatedLevel: 1,
-                challenges: [challengeForSkillCitation4, challengeForSkillRecherche4, challengeForSkillCitation4AndMoteur3]
-              },
-              {
-                id: 'competenceRecordIdTwo',
-                index: '1.2',
-                name: '1.2 Adopter un dauphin',
-                skills: [],
-                pixScore: 23,
-                estimatedLevel: 2,
-                challenges: []
-              }]);
-          });
+        // then
+        return promise.then((skillProfile) => {
+          expect(skillProfile).to.deep.equal([
+            {
+              id: 'competenceRecordIdOne',
+              index: '1.1',
+              name: '1.1 Construire un flipper',
+              skills: [],
+              pixScore: 12,
+              estimatedLevel: 1,
+              challenges: []
+            },
+            {
+              id: 'competenceRecordIdTwo',
+              index: '1.2',
+              name: '1.2 Adopter un dauphin',
+              skills: [],
+              pixScore: 23,
+              estimatedLevel: 2,
+              challenges: []
+            }]);
         });
       });
     });
+  });
 
-    it('should group skills by competence ', () => {
-      // given
-      const answerA1 = new BookshelfAnswer({ challengeId: challengeForSkillRecherche4.id, result: 'ok' });
-      const answerCollectionA = AnswerCollection.forge([answerA1]);
+  context('when we want to save information', () => {
 
-      const answerB1 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
-      const answerB2 = new BookshelfAnswer({ challengeId: challengeForSkillUrl3.id, result: 'ok' });
-      const answerCollectionB = AnswerCollection.forge([answerB1, answerB2]);
+    let clock;
+    let sandbox;
 
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionA);
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionB);
-
-      // when
-      const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-      // then
-      return promise.then((skillProfile) => {
-        expect(skillProfile).to.deep.equal([
-          {
-            id: 'competenceRecordIdOne',
-            index: '1.1',
-            name: '1.1 Construire un flipper',
-            skills: [skillRecherche4],
-            pixScore: 12,
-            estimatedLevel: 1,
-            challenges: [challengeForSkillRecherche4]
-          },
-          {
-            id: 'competenceRecordIdTwo',
-            index: '1.2',
-            name: '1.2 Adopter un dauphin',
-            skills: [skillUrl3, skillRemplir2],
-            pixScore: 23,
-            estimatedLevel: 2,
-            challenges: [challengeForSkillUrl3, challengeForSkillRemplir2]
-          }]);
-      });
+    const sessionId = 23;
+    beforeEach(() => {
+      clock = sinon.useFakeTimers(new Date('2018-02-04T01:00:00.000+01:00'));
+      sandbox = sinon.sandbox.create();
     });
 
-    it('should sort in desc grouped skills by competence', () => {
-      // given
-      const answer1 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir4.id, result: 'ok' });
-      const answer2 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
-      const answer3 = new BookshelfAnswer({ challengeId: challengeForSkillUrl3.id, result: 'ok' });
-      const answerCollectionArray = AnswerCollection.forge([answer1, answer2, answer3]);
-
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
-
-      // when
-      const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-      // then
-      return promise.then((skillProfile) => {
-        expect(skillProfile).to.deep.equal([
-          {
-            id: 'competenceRecordIdOne',
-            index: '1.1',
-            name: '1.1 Construire un flipper',
-            skills: [],
-            pixScore: 12,
-            estimatedLevel: 1,
-            challenges: []
-          },
-          {
-            id: 'competenceRecordIdTwo',
-            index: '1.2',
-            name: '1.2 Adopter un dauphin',
-            skills: [skillRemplir4, skillUrl3, skillRemplir2],
-            pixScore: 23,
-            estimatedLevel: 2,
-            challenges: [challengeForSkillRemplir4, challengeForSkillUrl3, challengeForSkillRemplir2]
-          }
-        ]);
-      });
+    afterEach(() => {
+      clock.restore();
+      sandbox.restore();
     });
 
-    it('should return the three most difficult skills sorted in desc grouped by competence', () => {
-      // given
-      const answer1 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir4.id, result: 'ok' });
-      const answer2 = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
-      const answer3 = new BookshelfAnswer({ challengeId: challengeForSkillUrl3.id, result: 'ok' });
-      const answer4 = new BookshelfAnswer({ challengeId: challengeForSkillWeb1.id, result: 'ok' });
-      const answerCollectionArray = AnswerCollection.forge([answer1, answer2, answer3, answer4]);
+    const noCompetences = [];
+    const oneCompetenceWithLevel0 = [{ id: 'competence1', estimatedLevel: 0 }];
+    const oneCompetenceWithLevel5 = [{ id: 'competence1', estimatedLevel: 5 }];
+    const fiveCompetencesAndOneWithLevel0 = [
+      { id: 'competence1', estimatedLevel: 1 },
+      { id: 'competence2', estimatedLevel: 2 },
+      { id: 'competence3', estimatedLevel: 0 },
+      { id: 'competence4', estimatedLevel: 4 },
+      { id: 'competence5', estimatedLevel: 5 },
+    ];
 
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
+    [{ label: 'User Has No AirtableCompetence', competences: noCompetences },
+      { label: 'User Has Only 1 AirtableCompetence at Level 0', competences: oneCompetenceWithLevel0 },
+      { label: 'User Has Only 1 AirtableCompetence at Level 5', competences: oneCompetenceWithLevel5 },
+      { label: 'User Has 5 Competences with 1 at Level 0', competences: fiveCompetencesAndOneWithLevel0 },
+    ].forEach(function(testCase) {
+      it(`should not create a new certification if ${testCase.label}`, function() {
+        // given
+        const userId = 12345;
 
-      // when
-      const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
+        // when
+        const createNewCertificationPromise = getProfileToCertify({ userId, sessionId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository, certificationCourseRepository, certificationChallengesService });
 
-      // then
-      return promise.then((skillProfile) => {
-        expect(skillProfile).to.deep.equal([
-          {
-            id: 'competenceRecordIdOne',
-            index: '1.1',
-            name: '1.1 Construire un flipper',
-            skills: [],
-            pixScore: 12,
-            estimatedLevel: 1,
-            challenges: []
-          },
-          {
-            id: 'competenceRecordIdTwo',
-            index: '1.2',
-            name: '1.2 Adopter un dauphin',
-            skills: [skillRemplir4, skillUrl3, skillRemplir2],
-            pixScore: 23,
-            estimatedLevel: 2,
-            challenges: [challengeForSkillRemplir4, challengeForSkillUrl3, challengeForSkillRemplir2]
-          }
-        ]);
-      });
-    });
-
-    it('should not add a skill twice', () => {
-      // given
-      const answer = new BookshelfAnswer({ challengeId: challengeForSkillRemplir2.id, result: 'ok' });
-      const answerCollectionArray = AnswerCollection.forge([answer, answer]);
-
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
-
-      // when
-      const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-      // then
-      return promise.then((skillProfile) => {
-        expect(skillProfile).to.deep.equal([
-          {
-            id: 'competenceRecordIdOne',
-            index: '1.1',
-            name: '1.1 Construire un flipper',
-            skills: [],
-            pixScore: 12,
-            estimatedLevel: 1,
-            challenges: []
-          },
-          {
-            id: 'competenceRecordIdTwo',
-            index: '1.2',
-            name: '1.2 Adopter un dauphin',
-            skills: [skillRemplir2],
-            pixScore: 23,
-            estimatedLevel: 2,
-            challenges: [challengeForSkillRemplir2]
-          }]);
-      });
-    });
-
-    it('should not assign skill, when the challenge id is not found', () => {
-      // given
-      const answer = new BookshelfAnswer({ challengeId: 'challengeRecordIdThatDoesNotExist', result: 'ok' });
-      const answerCollectionArray = AnswerCollection.forge(answer);
-
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
-
-      // when
-      const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-      // then
-      return promise.then((skillProfile) => {
-        expect(skillProfile).to.deep.equal([
-          {
-            id: 'competenceRecordIdOne',
-            index: '1.1',
-            name: '1.1 Construire un flipper',
-            skills: [],
-            pixScore: 12,
-            estimatedLevel: 1,
-            challenges: []
-          },
-          {
-            id: 'competenceRecordIdTwo',
-            index: '1.2',
-            name: '1.2 Adopter un dauphin',
-            skills: [],
-            pixScore: 23,
-            estimatedLevel: 2,
-            challenges: []
-          }]);
-      });
-    });
-
-    it('should not assign skill, when the competence is not found', () => {
-      // given
-      const answer = new BookshelfAnswer({ challengeId: 'challengeRecordIdThree', result: 'ok' });
-      const answerCollectionArray = AnswerCollection.forge(answer);
-
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment1.id).resolves(answerCollectionWithEmptyData);
-      answerRepository.findCorrectAnswersByAssessment.withArgs(assessment2.id).resolves(answerCollectionArray);
-
-      // when
-      const promise = getProfileToCertify({ userId, answerRepository, assessmentRepository, courseRepository, challengeRepository, competenceRepository });
-
-      // then
-      return promise.then((skillProfile) => {
-        expect(skillProfile).to.deep.equal([
-          {
-            id: 'competenceRecordIdOne',
-            index: '1.1',
-            name: '1.1 Construire un flipper',
-            skills: [],
-            pixScore: 12,
-            estimatedLevel: 1,
-            challenges: []
-          },
-          {
-            id: 'competenceRecordIdTwo',
-            index: '1.2',
-            name: '1.2 Adopter un dauphin',
-            skills: [],
-            pixScore: 23,
-            estimatedLevel: 2,
-            challenges: []
-          }]);
+        // then
+        return createNewCertificationPromise.catch((error) => {
+          expect(error).to.be.an.instanceOf(UserNotAuthorizedToCertifyError);
+          sinon.assert.notCalled(certificationCourseRepository.save);
+        });
       });
     });
   });

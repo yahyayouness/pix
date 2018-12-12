@@ -9,8 +9,8 @@ const securityController = require('../../../../lib/interfaces/controllers/secur
 const courseController = require('../../../../lib/application/courses/course-controller');
 const courseService = require('../../../../lib/domain/services/course-service');
 const sessionService = require('../../../../lib/domain/services/session-service');
-const certificationService = require('../../../../lib/domain/services/certification-service');
 const certificationCourseSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/certification-course-serializer');
+const usescases = require('../../../../lib/domain/usecases');
 const { NotFoundError } = require('../../../../lib/domain/errors');
 const { UserNotAuthorizedToCertifyError } = require('../../../../lib/domain/errors');
 
@@ -27,7 +27,7 @@ describe('Integration | Controller | course-controller', () => {
     sandbox.stub(courseRepository, 'getProgressionCourses');
     sandbox.stub(courseRepository, 'getAdaptiveCourses');
     sandbox.stub(courseRepository, 'getCoursesOfTheWeek');
-    sandbox.stub(certificationService, 'startNewCertification');
+    sandbox.stub(usescases, 'getProfileToCertify');
     sandbox.stub(certificationCourseSerializer, 'serialize');
     sandbox.stub(sessionService, 'sessionExists');
     sandbox.stub(Boom, 'forbidden');
@@ -178,7 +178,7 @@ describe('Integration | Controller | course-controller', () => {
 
     it('should reply the certification course serialized', () => {
       // given
-      certificationService.startNewCertification.resolves(newlyCreatedCertificationCourse);
+      usescases.getProfileToCertify.resolves(newlyCreatedCertificationCourse);
       certificationCourseSerializer.serialize.resolves({});
       sessionService.sessionExists.resolves(2);
 
@@ -200,7 +200,7 @@ describe('Integration | Controller | course-controller', () => {
     it('should return 403 error if cannot start a new certification course', () => {
       // given
       const error = new UserNotAuthorizedToCertifyError();
-      certificationService.startNewCertification.rejects(error);
+      usescases.getProfileToCertify.rejects(error);
       certificationCourseSerializer.serialize.resolves({});
       sessionService.sessionExists.resolves();
 
