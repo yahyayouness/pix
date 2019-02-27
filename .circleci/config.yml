@@ -137,6 +137,8 @@ jobs:
       - run: npm test
       - store_test_results:
           path: test-results
+      - store_artifacts:
+          path: test-results
 
   e2e_test:
     docker:
