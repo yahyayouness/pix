@@ -4,10 +4,13 @@ const BookshelfSession = require('../data/session');
 const Session = require('../../domain/models/Session');
 const CertificationCourse = require('../../domain/models/CertificationCourse');
 const { NotFoundError } = require('../../domain/errors');
+const moment = require('moment');
 
 function _toDomain(bookshelfSession) {
   if (bookshelfSession) {
     const sessionReturned = bookshelfSession.toJSON();
+    sessionReturned.date = moment(sessionReturned.date, moment.ISO_8601, true).format('YYYY-MM-DD');
+    sessionReturned.time = moment(sessionReturned.time, ['HH:mm', 'HH:mm:ss'], true).format('HH:mm');
     sessionReturned.certifications = bookshelfSession.related('certificationCourses').map((certificationCourse) => {
       return CertificationCourse.fromAttributes(certificationCourse);
     });

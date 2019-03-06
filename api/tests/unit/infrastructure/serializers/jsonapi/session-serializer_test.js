@@ -12,7 +12,7 @@ describe('Unit | Serializer | JSONAPI | session-serializer', function() {
     address: 'Nice',
     room: '28D',
     examiner: 'Antoine Toutvenant',
-    date: '20/01/2017',
+    date: '2017-01-20',
     time: '14:30',
     description: '',
     accessCode: '',
@@ -28,7 +28,7 @@ describe('Unit | Serializer | JSONAPI | session-serializer', function() {
         room: '28D',
         'access-code': '',
         examiner: 'Antoine Toutvenant',
-        date: '20/01/2017',
+        date: '2017-01-20',
         time: '14:30',
         description: ''
       },
@@ -127,6 +127,17 @@ describe('Unit | Serializer | JSONAPI | session-serializer', function() {
       expect(session.date).to.equal('2017-01-20');
       expect(session.time).to.equal('14:30');
       expect(session.description).to.equal('');
+    });
+
+    it('should allow old date format', function() {
+      // given
+      jsonApiSession.data.attributes['date'] = '20/01/2017';
+
+      // when
+      const session = serializer.deserialize(jsonApiSession);
+
+      // then
+      expect(session.date).to.equal('2017-01-20');
     });
 
     context('when there is no certification center ID', () => {

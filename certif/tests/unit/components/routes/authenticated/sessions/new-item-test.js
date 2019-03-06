@@ -14,21 +14,21 @@ module('Unit | Components | routes/authenticated/sessions/new-item', function(ho
 
   test('onDatePicked should set the session date', function(assert) {
     // given
-    const formattedDate = '01/01/2010';
-    const date = new Date('01/01/2010');
+    const formattedDate = '2010-01-01';
+    const date = new Date('2010-01-01');
 
     // when
     component.onDatePicked([date], formattedDate);
 
     // then
     const sessionDate = component.get('session.date');
-    assert.equal(sessionDate, formattedDate)
+    assert.equal(sessionDate, formattedDate);
   });
 
   test('onTimePicked should set the session time', function(assert) {
     // given
     const formattedTime = '13:45';
-    const time = new Date('01/02/2015 13:45');
+    const time = new Date('2015-02-01T13:45:00');
 
     // when
     component.onTimePicked([time], formattedTime);

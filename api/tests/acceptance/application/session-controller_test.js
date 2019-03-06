@@ -211,7 +211,7 @@ describe('Acceptance | Controller | session-controller', () => {
               address: 'Nice',
               room: '28D',
               examiner: 'Michel Essentiel',
-              date: '08/12/2017',
+              date: '2017-12-08',
               time: '14:30',
               description: ''
             }
@@ -295,7 +295,7 @@ describe('Acceptance | Controller | session-controller', () => {
             address: 'New address',
             room: 'New room',
             examiner: 'Antoine Toutvenant',
-            date: '08/12/2017',
+            date: '2017-12-08',
             time: '14:30',
             description: 'ahah',
             accessCode: 'ABCD12'

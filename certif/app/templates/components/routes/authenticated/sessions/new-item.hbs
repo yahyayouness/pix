@@ -38,7 +38,9 @@
     <label for="session-date" class="label">Date de début</label>
     {{ember-flatpickr id='session-date'
                       onChange=(action onDatePicked)
-                      dateFormat='d/m/Y'
+                      altInput=true
+                      altFormat='d/m/Y'
+                      dateFormat='Y-m-d'
                       locale='fr'
                       minDate='today'
                       name='session-date'

@@ -38,7 +38,7 @@ module.exports = {
       address: attributes.address,
       room: attributes.room,
       examiner: attributes.examiner,
-      date: moment(attributes.date, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+      date: moment(attributes.date, ['D/M/YYYY', 'YYYY-MM-DD'], true).format('YYYY-MM-DD'),
       time: attributes.time,
       description: attributes.description,
     });

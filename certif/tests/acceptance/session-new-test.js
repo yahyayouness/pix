@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 import { module, test } from 'qunit';
 import { click, currentURL, fillIn, visit } from '@ember/test-helpers';
 import { setupApplicationTest } from 'ember-qunit';
@@ -35,19 +33,13 @@ module('Acceptance | Session creation', function(hooks) {
 
     test('it should create a session and redirect to session details', async function(assert) {
       // given
-      let sessionDate = moment();
-      let sessionFormattedDate = sessionDate.format('DD/MM/YYYY');
-      let sesionFormattedTime = '02/02/2019 13:45';
-      let sessionTime = new Date(sesionFormattedTime);
-
-
       await visit('/sessions/creation');
       await fillIn('#session-address', 'My address');
       await fillIn('#session-room', 'My room');
       await fillIn('#session-examiner', 'My examiner');
       await fillIn('#session-description', 'My description');
-      await setFlatpickrDate('#session-date', sessionDate.toDate());
-      await setFlatpickrDate('#session-time', sessionTime);
+      await setFlatpickrDate('#session-date', new Date('2040-02-03'));
+      await setFlatpickrDate('#session-time', new Date('2001-01-01T13:45:00'));
 
       // when
       await click('button[type="submit"]');
@@ -58,7 +50,7 @@ module('Acceptance | Session creation', function(hooks) {
       assert.equal(session.room, 'My room');
       assert.equal(session.examiner, 'My examiner');
       assert.equal(session.description, 'My description');
-      assert.equal(session.date, sessionFormattedDate);
+      assert.equal(session.date, '2040-02-03');
       assert.equal(session.time, '13:45');
       assert.equal(currentURL(), `/sessions/${session.id}`);
     });

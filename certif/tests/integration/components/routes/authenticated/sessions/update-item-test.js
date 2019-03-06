@@ -13,7 +13,7 @@ module('Integration | Component | routes/authenticated/session | update-item', f
     session = new EmberObject({ });
     session.set('address', '20 rue du gros chat');
     session.set('room', '2B');
-    session.set('date', '2028-05-26T22:00:00.000Z');
+    session.set('date', '2028-05-26');
     session.set('time', '20:00');
     session.set('examiner', 'Monsieur Rougeaud');
     this.set('updateSessionSpy', (updatedSession) => {
@@ -48,7 +48,7 @@ module('Integration | Component | routes/authenticated/session | update-item', f
     await render(hbs`{{routes/authenticated/sessions/update-item session=model updateSession=(action updateSessionSpy) cancel=(action cancelSpy)}}`);
 
     // then
-    const expectedDate = moment(session.get('date')).format('DD/MM/YYYY');
+    const expectedDate = moment(session.get('date')).format('YYYY-MM-DD');
 
     assert.dom('#session-address').hasValue(session.get('address'));
     assert.dom('#session-room').hasValue(session.get('room'));
