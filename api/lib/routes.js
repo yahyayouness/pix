@@ -20,6 +20,7 @@ module.exports = [
   require('./application/metrics'),
   require('./application/organizations'),
   require('./application/passwords'),
+  require('./application/profileV2'),
   require('./application/saml'),
   require('./application/sessions'),
   require('./application/simulateErrors'),
