@@ -8,7 +8,6 @@ module.exports = {
 
     return usecases.getProfileV2({
       userId,
-    })
-      .then(profileV2Serializer.serialize);
+    }).then(profileV2Serializer.serialize);
   },
 };

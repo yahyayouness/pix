@@ -15,7 +15,7 @@ describe('Unit | Controller | profileV2-controller', () => {
 
     beforeEach(() => {
       sinon.stub(usecases, 'getProfileV2');
-      knowledgeElements = domainBuilder.buildSmartPlacementKnowledgeElement();
+      knowledgeElements = domainBuilder.buildSmartPlacementKnowledgeElement(userId);
       profileV2 = {
         knowledgeElements
       };
@@ -23,6 +23,14 @@ describe('Unit | Controller | profileV2-controller', () => {
 
     it('should return the Profile V2', async () => {
       // given
+      const expectedProfileV2JsonApi = {
+        data: {
+          attributes: {
+            'knowledge-elements': knowledgeElements,
+          },
+          type: 'profileV2s',
+        },
+      };
       usecases.getProfileV2.resolves(profileV2);
 
       // when
@@ -33,7 +41,7 @@ describe('Unit | Controller | profileV2-controller', () => {
         userId,
       });
 
-      expect(response).to.have.deep.members(knowledgeElements);
+      expect(response).to.deep.equal(expectedProfileV2JsonApi);
     });
   });
 
