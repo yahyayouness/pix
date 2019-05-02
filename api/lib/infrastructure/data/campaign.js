@@ -16,7 +16,11 @@ module.exports = Bookshelf.model('Campaign', {
   },
 
   assessments: function() {
-    return this.belongsToMany('Assessment', 'campaingId').through('CampaignParticipation');
+    return this.belongsToMany('Assessment').through('CampaignParticipation');
+  },
+
+  organization: function() {
+    return this.belongsTo('Organization', 'organizationId');
   },
 
   targetProfile: function() {
