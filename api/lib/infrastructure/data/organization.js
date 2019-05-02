@@ -22,4 +22,8 @@ module.exports = Bookshelf.model('Organization', {
     return this.hasMany('TargetProfileShare', 'organizationId');
   },
 
+  campaigns() {
+    return this.hasMany('Campaign', 'organizationId');
+  },
+
 });
