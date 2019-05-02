@@ -1,12 +1,7 @@
 // https://jsonapi.org/
 // https://github.com/SeyZ/jsonapi-serializer
 
-const chai = require('chai');
-const { expect } = require('chai');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
-
-chai.use(sinonChai);
+const { sinon, expect } = require('../test-helper');
 
 afterEach(function() {
   sinon.restore();
