@@ -5,9 +5,9 @@ import EmberObject from '@ember/object';
 import EmberService from '@ember/service';
 import sinon from 'sinon';
 
-describe('Unit | Route | Assessments | Challenge', function() {
+describe('Unit | Route | Assessment | Challenge', function() {
 
-  setupTest('route:assessments.challenge', {
+  setupTest('route:assessment.challenge', {
     needs: ['service:session', 'service:metrics']
   });
 
@@ -69,7 +69,7 @@ describe('Unit | Route | Assessments | Challenge', function() {
       route.model(params);
 
       // then
-      sinon.assert.calledWith(route.modelFor, 'assessments');
+      sinon.assert.calledWith(route.modelFor, 'assessment');
       sinon.assert.calledWith(findRecordStub, 'challenge', params.challenge_id);
     });
     it('should call queryRecord to find answer', function() {
@@ -225,7 +225,7 @@ describe('Unit | Route | Assessments | Challenge', function() {
         await route.actions.saveAnswerAndNavigate.call(route, challengeOne, assessment, answerValue, answerTimeout, answerElapsedTime);
 
         // then
-        sinon.assert.calledWithExactly(route.transitionTo, 'assessments.resume', assessment.get('id'));
+        sinon.assert.calledWithExactly(route.transitionTo, 'assessment.resume', assessment.get('id'));
       });
     });
 
