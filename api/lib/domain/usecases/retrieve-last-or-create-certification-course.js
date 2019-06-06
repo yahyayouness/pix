@@ -1,39 +1,13 @@
 const _ = require('lodash');
 
 const CertificationCourse = require('../models/CertificationCourse');
+const UserCompetence = require('../models/UserCompetence');
 const { UserNotAuthorizedToCertifyError } = require('../errors');
 
-function _canStartACertification(userCompetences) {
-  const competencesWithEstimatedLevelHigherThan0 = userCompetences
-    .filter((competence) => competence.estimatedLevel > 0);
-
-  return _.size(competencesWithEstimatedLevelHigherThan0) >= 5;
-}
-
-function _selectProfileToCertify(userCompetencesProfilV1, userCompetencesProfilV2) {
-  const canStartACertificationOnProfileV2 = _canStartACertification(userCompetencesProfilV2);
-  const canStartACertificationOnProfileV1 = _canStartACertification(userCompetencesProfilV1);
-
-  if (!canStartACertificationOnProfileV1 && !canStartACertificationOnProfileV2) {
-    return null;
-  }
-
-  else if (canStartACertificationOnProfileV1 && !canStartACertificationOnProfileV2) {
-    return userCompetencesProfilV1;
-  }
-
-  else if (!canStartACertificationOnProfileV1 && canStartACertificationOnProfileV2) {
-    return userCompetencesProfilV2;
-  }
-
-  else {
-    const pixScoreProfilV1 = _.sumBy(userCompetencesProfilV1, 'pixScore');
-    const pixScoreProfilV2 = _.sumBy(userCompetencesProfilV2, 'pixScore');
-
-    if (pixScoreProfilV1 >= pixScoreProfilV2) return userCompetencesProfilV1;
-
-    return userCompetencesProfilV2;
-  }
+function _selectProfileToCertify(userCompetencesProfileV1, userCompetencesProfileV2) {
+  return _([userCompetencesProfileV1, userCompetencesProfileV2])
+    .filter(UserCompetence.isListOfUserCompetencesCertifiable)
+    .maxBy(UserCompetence.sumPixScores);
 }
 
 async function _startNewCertification({

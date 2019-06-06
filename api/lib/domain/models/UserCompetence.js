@@ -35,6 +35,17 @@ class UserCompetence {
       this.challenges.push(newChallenge);
     }
   }
+
+  static isListOfUserCompetencesCertifiable(userCompetences) {
+    const competencesWithEstimatedLevelHigherThan0 = userCompetences
+      .filter((competence) => competence.estimatedLevel > 0);
+
+    return _.size(competencesWithEstimatedLevelHigherThan0) >= 5;
+  }
+
+  static sumPixScores(userCompetences) {
+    return _.sumBy(userCompetences, 'pixScore');
+  }
 }
 
 module.exports = UserCompetence;
