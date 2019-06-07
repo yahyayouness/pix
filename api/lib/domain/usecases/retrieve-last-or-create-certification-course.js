@@ -4,12 +4,22 @@ const CertificationCourse = require('../models/CertificationCourse');
 const UserCompetence = require('../models/UserCompetence');
 const { UserNotAuthorizedToCertifyError } = require('../errors');
 
-function _selectProfileToCertify(userCompetencesProfileV1, userCompetencesProfileV2) {
-  return _([userCompetencesProfileV1, userCompetencesProfileV2])
-    .filter(UserCompetence.isListOfUserCompetencesCertifiable)
-    .maxBy(UserCompetence.sumPixScores);
+function _isV1CertificationCourse(
+  isCertificationV2Active,
+  userCompetencesProfileV1,
+  userCompetencesProfileV2
+) {
+  if (!isCertificationV2Active) {
+    return true;
+  }
+  if (!UserCompetence.isListOfUserCompetencesCertifiable(userCompetencesProfileV1)) {
+    return false;
+  }
+  if (!UserCompetence.isListOfUserCompetencesCertifiable(userCompetencesProfileV2)) {
+    return true;
+  }
+  return UserCompetence.sumPixScores(userCompetencesProfileV1) >= UserCompetence.sumPixScores(userCompetencesProfileV2);
 }
-
 async function _startNewCertification({
   userId,
   sessionId,
@@ -19,22 +29,21 @@ async function _startNewCertification({
   certificationCourseRepository
 }) {
 
-  const userCompetencesProfileV1 = await userService.getProfileToCertifyV1(userId, new Date());
+  const now = new Date();
 
-  let userCompetencesProfileV2;
-  if (isCertificationV2Active) {
-    userCompetencesProfileV2 = await userService.getProfileToCertifyV2(userId, new Date());
-  }
-  else {
-    userCompetencesProfileV2 = [];
-  }
+  const userCompetencesProfileV1 = await userService.getProfileToCertifyV1(userId, now);
+  const userCompetencesProfileV2 = await userService.getProfileToCertifyV2(userId, now);
 
-  const userCompetencesToCertify = _selectProfileToCertify(userCompetencesProfileV1, userCompetencesProfileV2);
-  if (!userCompetencesToCertify) {
+  const isV1Certification = _isV1CertificationCourse(isCertificationV2Active, userCompetencesProfileV1, userCompetencesProfileV2);
+  const isV2Certification = !isV1Certification && UserCompetence.isListOfUserCompetencesCertifiable(userCompetencesProfileV2);
+
+  if (!isV1Certification && !isV2Certification) {
     throw new UserNotAuthorizedToCertifyError();
   }
 
-  const isV2Certification = userCompetencesToCertify === userCompetencesProfileV2;
+  const userCompetencesToCertify = isV1Certification ?
+    userCompetencesProfileV1 :
+    userCompetencesProfileV2;
 
   const newCertificationCourse = new CertificationCourse({ userId, sessionId, isV2Certification });
   const savedCertificationCourse = await certificationCourseRepository.save(newCertificationCourse);
