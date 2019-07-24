@@ -1,3 +1,4 @@
+const fs = require('fs');
 const _ = require('lodash');
 
 const skillRepository = require('../../lib/infrastructure/repositories/skill-repository');
@@ -10,6 +11,12 @@ const KeModel = require('../../lib/domain/models/KnowledgeElement');
 const competenceId = 'rece6jYwH4WEw549z';
 
 async function main() {
+  let mode = process.argv[2].split('=')[1];
+  let questionsCount = 0;
+  const possibleResults = ['ok', 'ko'];
+  let questionLevels = [];
+  let responseResults = [];
+
   const [
     answers,
     targetSkills,
@@ -23,13 +30,43 @@ async function main() {
     []
   ]);
   let ke = [];
-  let result = smartRandom.getNextChallenge({ answers, targetSkills, challenges, knowledgeElements });
-  console.log(result.nextChallenge.skills[0].name);
+  let result;
+  let lastAnswer;
+  console.log('Niveau de lepreuve;Niveau estime qui a aidé a la question;Ce quil a repondu;');
 
-  while (!result.hasAssessmentEnded) {
+  do {
 
-    const lastAnswer = new AnswerModel({ result: 'ok', challengeId: result.nextChallenge.id });
+    result = smartRandom.getNextChallenge({ answers: [lastAnswer], targetSkills, challenges, knowledgeElements: ke });
 
+    if (!result.nextChallenge) {
+      console.log('the end', questionsCount);
+      break;
+    } else {
+      questionsCount++;
+    }
+
+    let response;
+    switch (mode) {
+      case 'fullOk':
+        response = 'ok';
+        break;
+      case 'fullKo':
+        response = 'ko';
+        break;
+      case 'random':
+        response = possibleResults[Math.round(Math.random())];
+        break;
+      case 'user':
+        const userData = require('./data.json');
+        const keForSkill = userData.filter(ke => ke.skillId === result.nextChallenge.skills[0].id);
+        response = keForSkill[0].status === 'validated' ? 'ok' : 'ko';
+        break;
+    }
+
+    lastAnswer = new AnswerModel({ result: response, challengeId: result.nextChallenge.id });
+    questionLevels.push(result.nextChallenge.skills[0].difficulty);
+    responseResults.push(response === 'ok' ? 1 : 0);
+    console.log(`${result.nextChallenge.skills[0].tubeName};${result.nextChallenge.skills[0].difficulty}; ${result.levelEstimated}; ${response}`);
 
     const temp = KeModel.createKnowledgeElementsForAnswer({
       answer: lastAnswer,
@@ -42,10 +79,11 @@ async function main() {
 
     ke = _.union(ke, temp);
 
-    result = smartRandom.getNextChallenge({ answers: [lastAnswer], targetSkills, challenges, knowledgeElements: ke });
-    console.log(result.nextChallenge.skills[0].name);
-  }
+  } while (!result.hasAssessmentEnded)
+
+  return fs.writeFileSync("./api/tests/algo/data.js", `var data = [${questionLevels}];\nvar responses = [${responseResults}];`)
 }
+
 
 main().then(
   () => process.exit(0),

@@ -17,14 +17,14 @@ function getNextChallenge({ knowledgeElements, challenges, targetSkills, answers
   });
 
   // First challenge has specific rules
-  const nextChallenge = isUserStartingTheTest
+  const { challenge, levelEstimated } = isUserStartingTheTest
     ? _findFirstChallenge({ challenges, knowledgeElements: knowledgeElementsOfTargetSkills, targetSkills, courseTubes })
     : _findAnyChallenge({ challenges, knowledgeElements: knowledgeElementsOfTargetSkills, targetSkills, courseTubes, lastChallenge });
 
   // Test is considered finished when no challenges are returned but we don't expose this detail
-  return nextChallenge
-    ? { hasAssessmentEnded: false, nextChallenge }
-    : { hasAssessmentEnded: true, nextChallenge: null };
+  return challenge
+    ? { hasAssessmentEnded: false, nextChallenge: challenge, levelEstimated }
+    : { hasAssessmentEnded: true, nextChallenge: null,levelEstimated };
 }
 
 function _findLastChallengeIfAny(answers, challenges) {
@@ -54,12 +54,13 @@ function _findAnyChallenge({ challenges, knowledgeElements, targetSkills, course
   const predictedLevel = catAlgorithm.getPredictedLevel(knowledgeElements, targetSkills);
   const availableChallenges = getFilteredChallengesForAnyChallenge({ challenges, knowledgeElements, courseTubes, predictedLevel, lastChallenge, targetSkills });
   const maxRewardingChallenges = catAlgorithm.findMaxRewardingChallenges({ availableChallenges, predictedLevel, courseTubes, knowledgeElements });
-  return _pickRandomChallenge(maxRewardingChallenges);
+  return { challenge: _pickRandomChallenge(maxRewardingChallenges), levelEstimated: predictedLevel };
+
 }
 
 function _findFirstChallenge({ challenges, knowledgeElements, targetSkills, courseTubes }) {
   const filteredChallengesForFirstChallenge = getFilteredChallengesForFirstChallenge({ challenges, knowledgeElements, courseTubes, targetSkills });
-  return _pickRandomChallenge(filteredChallengesForFirstChallenge);
+  return { challenge: _pickRandomChallenge(filteredChallengesForFirstChallenge), levelEstimated: 2 };
 }
 
 function _pickRandomChallenge(challenges) {
