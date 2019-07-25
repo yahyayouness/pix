@@ -16,27 +16,27 @@ async function main() {
   const possibleResults = ['ok', 'ko'];
   let questionLevels = [];
   let responseResults = [];
+  let estimatedLevelResults = [];
+  let userKE = [];
+  let result;
+  let lastAnswer = null;
+  console.log('Test sur la compétence ', competenceId);
+  console.log('En mode ', mode);
+  console.log('Tube; Niveau de lepreuve;Niveau estime qui a aidé a la question;Ce quil a repondu;');
 
   const [
-    answers,
     targetSkills,
     challenges,
-    knowledgeElements
 
   ] = await Promise.all([
-    [],
     skillRepository.findByCompetenceId(competenceId),
     challengeRepository.findByCompetenceId(competenceId),
-    []
   ]);
-  let ke = [];
-  let result;
-  let lastAnswer;
-  console.log('Niveau de lepreuve;Niveau estime qui a aidé a la question;Ce quil a repondu;');
+
 
   do {
 
-    result = smartRandom.getNextChallenge({ answers: [lastAnswer], targetSkills, challenges, knowledgeElements: ke });
+    result = smartRandom.getNextChallenge({ answers: [lastAnswer], targetSkills, challenges, knowledgeElements: userKE });
 
     if (!result.nextChallenge) {
       console.log('the end', questionsCount);
@@ -48,24 +48,26 @@ async function main() {
     let response;
     switch (mode) {
       case 'fullOk':
-        response = 'ok';
+        response = possibleResults[0];
         break;
       case 'fullKo':
-        response = 'ko';
+        response = possibleResults[1];
         break;
       case 'random':
         response = possibleResults[Math.round(Math.random())];
         break;
       case 'user':
         const userData = require('./data.json');
-        const keForSkill = userData.filter(ke => ke.skillId === result.nextChallenge.skills[0].id);
-        response = keForSkill[0].status === 'validated' ? 'ok' : 'ko';
+        const userKEForSkill = userData.filter(userKE => userKE.skillId === result.nextChallenge.skills[0].id);
+        response = userKEForSkill[0].status === 'validated' ? possibleResults[0] : possibleResults[1];
         break;
     }
 
     lastAnswer = new AnswerModel({ result: response, challengeId: result.nextChallenge.id });
     questionLevels.push(result.nextChallenge.skills[0].difficulty);
-    responseResults.push(response === 'ok' ? 1 : 0);
+    estimatedLevelResults.push(result.levelEstimated);
+    responseResults.push(response === possibleResults[0] ? 1 : 0);
+
     console.log(`${result.nextChallenge.skills[0].tubeName};${result.nextChallenge.skills[0].difficulty}; ${result.levelEstimated}; ${response}`);
 
     const temp = KeModel.createKnowledgeElementsForAnswer({
@@ -77,11 +79,11 @@ async function main() {
       userId: 1
     });
 
-    ke = _.union(ke, temp);
+    userKE = _.union(userKE, temp);
 
   } while (!result.hasAssessmentEnded)
 
-  return fs.writeFileSync("./api/tests/algo/data.js", `var data = [${questionLevels}];\nvar responses = [${responseResults}];`)
+  return fs.writeFileSync("./api/tests/algo/data.js", `var data = [${questionLevels}];\nvar responses = [${responseResults}];\nvar estimated = [${estimatedLevelResults}];`)
 }
 
 
