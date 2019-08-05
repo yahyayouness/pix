@@ -1,5 +1,7 @@
 const fs = require('fs');
 const _ = require('lodash');
+const moment = require('moment');
+require('dotenv').config({ path: '../../.env' });
 
 const skillRepository = require('../../lib/infrastructure/repositories/skill-repository');
 const challengeRepository = require('../../lib/infrastructure/repositories/challenge-repository');
@@ -7,22 +9,50 @@ const smartRandom = require('../../lib/domain/services/smart-random/smart-random
 
 const AnswerModel = require('../../lib/domain/models/Answer');
 const KeModel = require('../../lib/domain/models/KnowledgeElement');
+const possibleResults = ['ok', 'ko'];
 
-const competenceId = 'rece6jYwH4WEw549z';
+function _selectMode(argv) {
+  let mode='random', competenceId='';
+  _.each(argv, (argument) => {
+    if(argument.split('=')[0] === 'MODE'){
+      mode = argument.split('=')[1];
+    }
+    if(argument.split('=')[0] === 'COMPETENCE'){
+      competenceId = argument.split('=')[1];
+    }
+  });
+  return { mode, competenceId };
+}
 
-async function main() {
-  let mode = process.argv[2].split('=')[1];
-  let questionsCount = 0;
-  const possibleResults = ['ok', 'ko'];
-  let questionLevels = [];
-  let responseResults = [];
-  let estimatedLevelResults = [];
-  let userKE = [];
-  let result;
+function _selectUserResponse(mode) {
+  let response;
+  switch (mode) {
+    case 'FULLOK':
+      response = possibleResults[0];
+      break;
+    case 'FULLKO':
+      response = possibleResults[1];
+      break;
+    case 'RANDOM':
+      response = possibleResults[Math.round(Math.random())];
+      break;
+    case 'USERS':
+      const userData = require('./data.json');
+      const userKEForSkill = userData.filter(userKE => userKE.skillId === result.nextChallenge.skills[0].id);
+      response = userKEForSkill[0].status === 'validated' ? possibleResults[0] : possibleResults[1];
+      break;
+  }
+  return response;
+}
+
+async function _launchSimulation(mode, competenceId) {
+
+  let numberOfChallengeAsked = 0;
+  let result = [];
+
+  let userKnowledgeElements = [];
+  let responseOfAlgo;
   let lastAnswer = null;
-  console.log('Test sur la compétence ', competenceId);
-  console.log('En mode ', mode);
-  console.log('Tube; Niveau de lepreuve;Niveau estime qui a aidé a la question;Ce quil a repondu;');
 
   const [
     targetSkills,
@@ -33,57 +63,59 @@ async function main() {
     challengeRepository.findByCompetenceId(competenceId),
   ]);
 
-
   do {
 
-    result = smartRandom.getNextChallenge({ answers: [lastAnswer], targetSkills, challenges, knowledgeElements: userKE });
+    responseOfAlgo = smartRandom.getNextChallenge({ answers: [lastAnswer], targetSkills, challenges, knowledgeElements: userKnowledgeElements });
 
-    if (!result.nextChallenge) {
-      console.log('the end', questionsCount);
+    if (!responseOfAlgo.nextChallenge) {
+      console.log('FINISHED WITH', numberOfChallengeAsked);
       break;
     } else {
-      questionsCount++;
+      numberOfChallengeAsked++;
     }
 
-    let response;
-    switch (mode) {
-      case 'fullOk':
-        response = possibleResults[0];
-        break;
-      case 'fullKo':
-        response = possibleResults[1];
-        break;
-      case 'random':
-        response = possibleResults[Math.round(Math.random())];
-        break;
-      case 'user':
-        const userData = require('./data.json');
-        const userKEForSkill = userData.filter(userKE => userKE.skillId === result.nextChallenge.skills[0].id);
-        response = userKEForSkill[0].status === 'validated' ? possibleResults[0] : possibleResults[1];
-        break;
-    }
+    const response = _selectUserResponse(mode);
+    lastAnswer = new AnswerModel({ result: response, challengeId: responseOfAlgo.nextChallenge.id });
 
-    lastAnswer = new AnswerModel({ result: response, challengeId: result.nextChallenge.id });
-    questionLevels.push(result.nextChallenge.skills[0].difficulty);
-    estimatedLevelResults.push(result.levelEstimated);
-    responseResults.push(response === possibleResults[0] ? 1 : 0);
-
-    console.log(`${result.nextChallenge.skills[0].tubeName};${result.nextChallenge.skills[0].difficulty}; ${result.levelEstimated}; ${response}`);
+    result.push({
+      numberOfChallenge: numberOfChallengeAsked,
+      tube: responseOfAlgo.nextChallenge.skills[0].tubeName,
+      levelOfChallenge: responseOfAlgo.nextChallenge.skills[0].difficulty,
+      estimatedLevel: responseOfAlgo.levelEstimated,
+      responseOfUser: response === possibleResults[0] ? 1 : 0
+    });
 
     const temp = KeModel.createKnowledgeElementsForAnswer({
       answer: lastAnswer,
-      challenge: result.nextChallenge,
+      challenge: responseOfAlgo.nextChallenge,
       previouslyFailedSkills: [],
       previouslyValidatedSkills: [],
       targetSkills,
       userId: 1
     });
 
-    userKE = _.union(userKE, temp);
+    userKnowledgeElements = _.union(userKnowledgeElements, temp);
 
-  } while (!result.hasAssessmentEnded)
+  } while (!responseOfAlgo.hasAssessmentEnded);
 
-  return fs.writeFileSync("./api/tests/algo/data.js", `var data = [${questionLevels}];\nvar responses = [${responseResults}];\nvar estimated = [${estimatedLevelResults}];`)
+  return result;
+
+}
+
+function _createJsonResult({ result, competenceId, mode }) {
+  const fileName = `test_${competenceId}_${mode}_${moment().format('YYYYMMDDhhmm')}.json`;
+  console.log(result);
+  const data = JSON.stringify(result);
+  return fs.writeFileSync(fileName, data);
+}
+
+async function main() {
+  const { mode, competenceId } = _selectMode(process.argv);
+
+  console.log('Test sur la compétence ', competenceId);
+  console.log('En mode ', mode);
+  const result = await _launchSimulation(mode, competenceId);
+  return _createJsonResult({ result, mode, competenceId});
 }
 
 

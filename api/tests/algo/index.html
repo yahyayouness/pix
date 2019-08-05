@@ -19,7 +19,7 @@
   <!-- ChartJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
   <!-- Data -->
-  <script src="./data.js"></script>
+  <script id="data" type="application/json" src="./test_rece6jYwH4WEw549z_FULLOK_20190805-1508.json"></script>
 
 </head>
 
@@ -48,38 +48,60 @@
 </div>
 
 <script>
-  const label = responses.map((response, index) => `Epreuve ${index+1}`);
-  const color = responses.map((response)=> response === 1 ? 'blue' : 'red');
 
-  var barGraph = new Chart($('#bar-graph'), {
-    type: 'bar',
-    data: {
-      datasets: [
-        {
-          label: 'Niveau estime par Pix',
-          data: estimated,
-          backgroundColor: 'rgba(0, 100, 0, 1)',
-          borderColor: 'rgba(0, 100, 0, 0.5)',
-          fill: false,
-          type: 'line'
-        },
-        {
-        label: 'Niveau des epreuves',
-        data,
-        backgroundColor: color,
-      }, ],
-      labels: label
-    },
+  function loadJSON(file, callback) {
 
-    options: {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true // begin y axis at 0
-          }
-        }]
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', file, true); // Replace 'my_data' with the path to your file
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+        callback(xobj.responseText);
       }
-    }
+    };
+    xobj.send(null);
+  }
+
+  loadJSON('./test_rece6jYwH4WEw549z_RANDOM_201908050334.json', function(response) {
+
+    var dataJSON = JSON.parse(response);
+    const levelEstimated = dataJSON.map(response => response.estimatedLevel);
+    const levelChallenges = dataJSON.map(response => response.levelOfChallenge);
+    const label = dataJSON.map((response, index) => `Epreuve ${index+1}`);
+    const color = dataJSON.map((response)=> response.responseOfUser === 1 ? 'blue' : 'red');
+
+    var barGraph = new Chart($('#bar-graph'), {
+      type: 'bar',
+      data: {
+        datasets: [
+          {
+            label: 'Niveau estime par Pix',
+            data: levelEstimated,
+            backgroundColor: 'rgba(0, 100, 0, 1)',
+            borderColor: 'rgba(0, 100, 0, 0.5)',
+            fill: false,
+            type: 'line'
+          },
+          {
+            label: 'Niveau des epreuves',
+            data: levelChallenges,
+            backgroundColor: color,
+          }, ],
+        labels: label
+      },
+
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true // begin y axis at 0
+            }
+          }]
+        }
+      }
+    });
+
   });
 
 </script>
