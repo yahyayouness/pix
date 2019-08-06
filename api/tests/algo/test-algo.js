@@ -24,22 +24,34 @@ function _selectMode(argv) {
   return { mode, competenceId };
 }
 
-function _selectUserResponse(mode) {
+function _selectUserResponse(mode, nextChallenge, numberOfChallengeAsked) {
   let response;
   switch (mode) {
     case 'FULLOK':
       response = possibleResults[0];
       break;
+    case 'KOFULLOK':
+      response = numberOfChallengeAsked===1 ? possibleResults[1] : possibleResults[0];
+      break;
     case 'FULLKO':
       response = possibleResults[1];
+      break;
+    case 'OKFULLKO':
+      response = numberOfChallengeAsked===1 ? possibleResults[0] : possibleResults[1];
       break;
     case 'RANDOM':
       response = possibleResults[Math.round(Math.random())];
       break;
-    case 'USERS':
-      const userData = require('./data.json');
-      const userKEForSkill = userData.filter(userKE => userKE.skillId === result.nextChallenge.skills[0].id);
-      response = userKEForSkill[0].status === 'validated' ? possibleResults[0] : possibleResults[1];
+    case 'USER':
+      const userData = require('./user.json');
+      const userKEForSkill = userData.filter(userKE => userKE.skillId === nextChallenge.skills[0].id);
+      if(userKEForSkill.length > 0) {
+        console.log('user');
+       response = userKEForSkill[0].status === 'validated' ? possibleResults[0] : possibleResults[1];
+      } else {
+        console.log('random');
+        response = possibleResults[Math.round(Math.random())];
+      }
       break;
   }
   return response;
@@ -74,7 +86,7 @@ async function _launchSimulation(mode, competenceId) {
       numberOfChallengeAsked++;
     }
 
-    const response = _selectUserResponse(mode);
+    const response = _selectUserResponse(mode, responseOfAlgo.nextChallenge, numberOfChallengeAsked);
     lastAnswer = new AnswerModel({ result: response, challengeId: responseOfAlgo.nextChallenge.id });
 
     result.push({
