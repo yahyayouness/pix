@@ -5,9 +5,7 @@ require('dotenv').config({ path: '../../.env' });
 
 const skillRepository = require('../../lib/infrastructure/repositories/skill-repository');
 const challengeRepository = require('../../lib/infrastructure/repositories/challenge-repository');
-
-const AnswerModel = require('../../lib/domain/models/Answer');
-const KeModel = require('../../lib/domain/models/KnowledgeElement');
+const users = require('./users.json');
 
 
 function _selectMode(argv) {
@@ -52,8 +50,17 @@ async function main() {
     challengeRepository.findByCompetenceId(competenceId),
   ]);
   challenges = _cleanChallenge(challenges);
-  _createJsonResult({ result: targetSkills, nameFile: "skill.json" });
-  _createJsonResult({ result: challenges, nameFile: "challenge.json"});
+  _createJsonResult({ result: targetSkills, nameFile: "skills.json" });
+  _createJsonResult({ result: challenges, nameFile: "challenges.json"});
+
+  const knowledgeElementsByUser = _.groupBy(users, 'userId');
+  const usersInformations = _.map(knowledgeElementsByUser, (knowledgeElementsForOneUser, key) => {
+    knowledgeElementsForOneUser = _.forEach(knowledgeElementsForOneUser, (ke) => delete ke.userId);
+    return { userId: key, knowledgeElements: knowledgeElementsForOneUser };
+  });
+  _createJsonResult({ result: usersInformations, nameFile: "usersExample.json"});
+
+  return null;
 }
 
 
