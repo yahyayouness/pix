@@ -2,13 +2,16 @@ const fs = require('fs');
 const _ = require('lodash');
 const moment = require('moment');
 require('dotenv').config({ path: '../../.env' });
+const skills = require('./skills.json');
+const challengesFromReferential = require('./challenges.json');
+const users = require('./usersExample.json');
 
-const skillRepository = require('../../lib/infrastructure/repositories/skill-repository');
-const challengeRepository = require('../../lib/infrastructure/repositories/challenge-repository');
-const smartRandom = require('../../lib/domain/services/smart-random/smart-random');
+const smartRandom = require('./pixAlgorithm/smart-random');
+const AnswerModel = require('./pixAlgorithm/AnswerModel');
+const ChallengeModel = require('./pixAlgorithm/ChallengeModel');
+const SkillModel = require('./pixAlgorithm/SkillModel');
+const KeModel = require('./pixAlgorithm/KnowledgeElementModel');
 
-const AnswerModel = require('../../lib/domain/models/Answer');
-const KeModel = require('../../lib/domain/models/KnowledgeElement');
 const possibleResults = ['ok', 'ko'];
 
 function _selectMode(argv) {
@@ -24,7 +27,7 @@ function _selectMode(argv) {
   return { mode, competenceId };
 }
 
-function _selectUserResponse(mode, nextChallenge, numberOfChallengeAsked) {
+function _selectUserResponse(mode, nextChallenge, numberOfChallengeAsked, usersInformations) {
   let response;
   switch (mode) {
     case 'FULLOK':
@@ -43,8 +46,7 @@ function _selectUserResponse(mode, nextChallenge, numberOfChallengeAsked) {
       response = possibleResults[Math.round(Math.random())];
       break;
     case 'USER':
-      const userData = require('./user.json');
-      const userKEForSkill = userData.filter(userKE => userKE.skillId === nextChallenge.skills[0].id);
+      const userKEForSkill = usersInformations.filter(userKE => userKE.skillId === nextChallenge.skills[0].id);
       if(userKEForSkill.length > 0) {
         console.log('user');
        response = userKEForSkill[0].status === 'validated' ? possibleResults[0] : possibleResults[1];
@@ -57,23 +59,31 @@ function _selectUserResponse(mode, nextChallenge, numberOfChallengeAsked) {
   return response;
 }
 
+function _getReferential(competenceId) {
+  let targetSkills = _.filter(skills, (skill) => skill.competenceId === competenceId);
+  let challenges = _.filter(challengesFromReferential, (challenge) => challenge.competenceId === competenceId);
+  targetSkills = _.map(targetSkills, (skill) => new SkillModel(skill));
+  challenges = _.map(challenges, (challenge) => {
+    challenge.skills = _.map(challenge.skills, (skill) => new SkillModel(skill));
+    return new ChallengeModel(challenge)
+  });
+  return { targetSkills, challenges };
+
+}
 async function _launchSimulation(mode, competenceId) {
 
   let numberOfChallengeAsked = 0;
   let result = [];
-
   let userKnowledgeElements = [];
   let responseOfAlgo;
   let lastAnswer = null;
+  let usersInformations;
+  if(mode === 'USER') {
+    const userFind = users[Math.floor(Math.random() * users.length)];
+    usersInformations = userFind.knowledgeElements;
+  }
 
-  const [
-    targetSkills,
-    challenges,
-
-  ] = await Promise.all([
-    skillRepository.findByCompetenceId(competenceId),
-    challengeRepository.findByCompetenceId(competenceId),
-  ]);
+  const { targetSkills, challenges } = _getReferential(competenceId);
 
   do {
 
@@ -86,7 +96,7 @@ async function _launchSimulation(mode, competenceId) {
       numberOfChallengeAsked++;
     }
 
-    const response = _selectUserResponse(mode, responseOfAlgo.nextChallenge, numberOfChallengeAsked);
+    const response = _selectUserResponse(mode, responseOfAlgo.nextChallenge, numberOfChallengeAsked, usersInformations);
     lastAnswer = new AnswerModel({ result: response, challengeId: responseOfAlgo.nextChallenge.id });
 
     result.push({
