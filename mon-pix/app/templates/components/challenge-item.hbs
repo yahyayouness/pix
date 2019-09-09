@@ -1,0 +1,86 @@
+{{#if hasChallengeTimer}}
+  {{#unless hasUserConfirmWarning}}
+    {{warning-page hasUserConfirmWarning=(action "setUserConfirmation") time=challenge.timer}}
+  {{/unless}}
+{{/if}}
+
+{{#unless hasChallengeTimer}}
+  <form {{action "validateAnswer" on="submit"}}>
+    {{challenge-statement challenge=challenge assessment=assessment}}
+
+    <div class="rounded-panel challenge-response {{if answer 'challenge-response--locked'}}">
+      <div class="rounded-panel__row challenge-proposals">
+        {{log challenge}}
+        {{#if challenge.isQCU}}
+          {{qcu-proposals
+            answer=answer
+            proposals=challenge.proposals
+            errorMessage=errorMessage
+            answerValue=answerValue
+            answerChanged=(action 'answerChanged')}}
+        {{else if challenge.isQCM}}
+          {{qcm-proposals
+            answer=answer
+            proposals=challenge.proposals
+            errorMessage=errorMessage
+            answerValue=answerValue
+            answerChanged=(action 'answerChanged')}}
+        {{else if challenge.isQROC}}
+          {{qroc-proposal
+            answer=answer
+            proposals=challenge.proposals
+            errorMessage=errorMessage
+            answerValue=answerValue
+            answerChanged=(action 'answerChanged')}}
+         {{else if challenge.isQROCM}}
+          {{qrocm-proposal
+            answer=answer
+            proposals=challenge.proposals
+            answersValue=answer._valuesAsMap
+            errorMessage=errorMessage
+            answerValue=answerValue
+            answerChanged=(action 'answerChanged') }}
+        {{/if}}
+      </div>
+
+      {{#if answer}}
+        <div class="challenge-response__locked-overlay">
+          {{fa-icon 'lock' class='challenge-response-locked__icon'}}
+        </div>
+      {{/if}}
+
+      {{#if challenge.timer}}
+        {{#if hasUserConfirmWarning}}
+          <div class="rounded-panel__row timeout-jauge-wrapper">
+            {{timeout-jauge allotedTime=challenge.timer}}
+          </div>
+        {{/if}}
+      {{/if}}
+    </div>
+
+    {{#if displayErrorMessage}}
+      <div class="alert alert-danger" role="alert">
+        {{errorMessage}}
+      </div>
+    {{/if}}
+
+    {{#if assessment}}
+      {{challenge-actions
+        answer=answer
+        assessment=assessment
+        challenge=challenge
+        validateAnswer=(action "validateAnswer")
+        skipChallenge=(action "skipChallenge")
+        isValidateButtonEnabled=isValidateButtonEnabled
+        isSkipButtonEnabled=isSkipButtonEnabled
+        resumeAssessment=resumeAssessment
+      }}
+    {{/if}}
+  </form>
+{{/unless}}
+
+{{#if canDisplayFeedbackPanel}}
+  <div class="challenge-item__feedback">
+    {{feedback-panel assessment=assessment challenge=challenge isFormOpened=false}}
+  </div>
+{{/if}}

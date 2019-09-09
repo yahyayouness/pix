@@ -4,7 +4,7 @@ import Component from '@ember/component';
 import _ from 'mon-pix/utils/lodash-custom';
 import ENV from 'mon-pix/config/environment';
 
-const ChallengeItemGeneric = Component.extend({
+const ChallengeItem = Component.extend({
 
   tagName: 'article',
   classNames: ['challenge-item'],
@@ -12,6 +12,9 @@ const ChallengeItemGeneric = Component.extend({
 
   isValidateButtonEnabled: true,
   isSkipButtonEnabled: true,
+  errorMessage: null,
+  displayErrorMessage: false,
+  answerValue: null,
 
   _elapsedTime: null,
   _timer: null,
@@ -83,31 +86,30 @@ const ChallengeItemGeneric = Component.extend({
   actions: {
     validateAnswer() {
       if (this.isValidateButtonEnabled && this.isSkipButtonEnabled) {
-        if (this._hasError()) {
-
-          const errorMessage = this._getErrorMessage();
-          
-          this.set('errorMessage', errorMessage);
-
+        if (this.errorMessage) {
+          this.set('displayErrorMessage', true);
           return;
         }
-        
-        this.set('errorMessage', null);
+
+        this.set('displayErrorMessage', false);
         this.set('_isUserAwareThatChallengeIsTimed', false);
         this.set('isValidateButtonEnabled', false);
-        
-        return this.answerValidated(this.challenge, this.assessment, this._getAnswerValue(), this._getTimeout(), this._getElapsedTime())
-          .finally(() => this.set('isValidateButtonEnabled', true));
+
+        return this.saveAnswerAndNavigate(this.challenge, this.assessment, this.answerValue, this._getTimeout(), this._getElapsedTime())
+          .finally(() => {
+            this.set('answerValue', null);
+            this.set('isValidateButtonEnabled', true);
+          });
       }
     },
 
     skipChallenge() {
       if (this.isValidateButtonEnabled && this.isSkipButtonEnabled) {
-        this.set('errorMessage', null);
+        this.set('displayErrorMessage', false);
         this.set('_isUserAwareThatChallengeIsTimed', false);
         this.set('isSkipButtonEnabled', false);
 
-        return this.answerValidated(this.challenge, this.assessment, '#ABAND#', this._getTimeout(), this._getElapsedTime())
+        return this.saveAnswerAndNavigate(this.challenge, this.assessment, '#ABAND#', this._getTimeout(), this._getElapsedTime())
           .finally(() => this.set('isSkipButtonEnabled', true));
       }
     },
@@ -118,7 +120,11 @@ const ChallengeItemGeneric = Component.extend({
       this.toggleProperty('hasChallengeTimer');
       this.set('_isUserAwareThatChallengeIsTimed', true);
     },
+
+    answerChanged: function() {
+      this.set('displayErrorMessage', false);
+    }
   },
 });
 
-export default ChallengeItemGeneric;
+export default ChallengeItem;

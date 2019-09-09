@@ -28,5 +28,19 @@ export default Model.extend({
   hasAttachment: notEmpty('attachments'),
   hasSingleAttachment: equal('attachments.length', 1),
   hasMultipleAttachments: gt('attachments.length', 1),
-  hasTimer: notEmpty('timer')
+  hasTimer: notEmpty('timer'),
+
+  isQCU: computed('type', function() {
+    return ['QCUIMG', 'QCU'].includes(this.type.toUpperCase());
+  }),
+  isQCM: computed('type', function() {
+    return ['QCMIMG', 'QCM'].includes(this.type.toUpperCase());
+  }),
+  isQROC: computed('type', function() {
+    return ['QROC'].includes(this.type.toUpperCase());
+  }),
+  isQROCM: computed('type', function() {
+    return ['QROCM', 'QROCM-IND', 'QROCM-DEP'].includes(this.type.toUpperCase());
+  })
+
 });

@@ -40,37 +40,5 @@ export default Route.extend({
 
   _findCampaigns({ campaignCode }) {
     return this.store.query('campaign', { filter: { code: campaignCode } });
-  },
-
-  _findOrCreateAnswer(challenge, assessment) {
-    let answer = assessment.get('answers').findBy('challenge.id', challenge.id);
-    if (!answer) {
-      answer = this.store.createRecord('answer', { assessment, challenge });
-    }
-    return answer;
-  },
-
-  actions: {
-
-    saveAnswerAndNavigate(challenge, assessment, answerValue, answerTimeout, answerElapsedTime) {
-      const answer = this._findOrCreateAnswer(challenge, assessment);
-      answer.setProperties({
-        value: answerValue,
-        timeout: answerTimeout,
-        elapsedTime: answerElapsedTime
-      });
-
-      return answer.save()
-        .then(
-          () => this.transitionTo('assessments.resume', assessment.get('id')),
-          () => {
-            answer.rollbackAttributes();
-            return this.send('error');
-          }
-        );
-    },
-    error() {
-      return true;
-    }
   }
 });
