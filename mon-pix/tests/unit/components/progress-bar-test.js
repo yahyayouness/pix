@@ -2,59 +2,58 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import EmberObject from '@ember/object';
 import { setupTest } from 'ember-mocha';
+import { htmlSafe } from '@ember/string';
 
 describe('Unit | Component | progress-bar', function() {
 
   setupTest();
 
-  describe('@progression', function() {
+  describe('@steps', function() {
 
-    it('should return a progression object', function() {
+    it('should return an array of progress step', function() {
       // given
       const assessment = EmberObject.create({
-        type: 'DEMO',
-        answers: [{}, {}, {}],
+        answers: [{}, {}],
         hasCheckpoints: false,
         course: {
-          nbChallenges: 10
+          nbChallenges: 4
         }
       });
       const component = this.owner.lookup('component:progress-bar');
       component.set('assessment', assessment);
-      component.setProgression();
 
       // when
-      const progression = component.get('progression');
+      const steps = component.get('steps');
 
       // then
-      expect(progression.get('assessmentType')).to.equal('DEMO');
-      expect(progression.get('challengesAnsweredCount')).to.equal(3);
-      expect(progression.get('challengesToAnswerCount')).to.equal(10);
+      expect(steps).to.deep.equal([
+        { stepnum: 1, status: 'complete' },
+        { stepnum: 2, status: 'complete' },
+        { stepnum: 3, status: 'active' },
+        { stepnum: 4, status: '' },
+      ]);
     });
   });
 
-  describe('@barStyle', function() {
+  describe('@valueGaugeStyle', function() {
 
-    it('should return the good CSS style value according to progression', function() {
+    it('should return the correct width', function() {
       // given
       const assessment = EmberObject.create({
-        type: 'DEMO',
-        answers: [{}, {}, {}, {}, {}],
+        answers: [{}, {}],
         hasCheckpoints: false,
         course: {
-          nbChallenges: 10
+          nbChallenges: 4
         }
       });
       const component = this.owner.lookup('component:progress-bar');
       component.set('assessment', assessment);
-      component.setProgression();
 
       // when
-      const barStyle = component.get('barStyle');
+      const valueGaugeStyle = component.get('valueGaugeStyle');
 
       // then
-      expect(barStyle.toString()).to.equal('width: 60%');
+      expect(valueGaugeStyle).to.deep.equal(htmlSafe('width: 25%'));
     });
   });
-
 });
