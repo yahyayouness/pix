@@ -46,6 +46,12 @@ class UserNotAuthorizedToGetCampaignResultsError extends DomainError {
   }
 }
 
+class UserNotAuthorizedToGetCertificationCoursesError extends DomainError {
+  constructor(message) {
+    super(message);
+  }
+}
+
 class CampaignWithoutOrganizationError extends DomainError {
   constructor(message) {
     super(message);
@@ -347,6 +353,7 @@ module.exports = {
   UserNotAuthorizedToCertifyError,
   UserNotAuthorizedToCreateCampaignError,
   UserNotAuthorizedToGetCampaignResultsError,
+  UserNotAuthorizedToGetCertificationCoursesError,
   UserNotAuthorizedToUpdateResourceError,
   UserNotFoundError,
   WrongDateFormatError,
