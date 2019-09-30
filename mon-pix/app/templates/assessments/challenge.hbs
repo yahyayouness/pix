@@ -23,6 +23,10 @@
       {{progress-bar assessment=model.assessment}}
     {{/if}}
 
+    {{#if model.assessment.isCertification}}
+      {{certification-progress assessment=model.assessment}}
+    {{/if}}
+
     {{component (get-challenge-component-class model.challenge)
                 challenge=model.challenge
                 assessment=model.assessment

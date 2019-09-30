@@ -1,11 +1,14 @@
-<div class="background-banner certification-banner">
-  <div class="certification-banner__container">
-    <div class="certification-banner__user-fullname">
-      {{currentUser.user.fullName}}
+<div class="certification-banner">
+  <div class="certification-banner-container">
+    <div class="certification-banner__pix-logo">
+      <img src="/images/pix-logo-blanc.svg" alt="Pix">
     </div>
+    <div class="certification-banner__splitter"></div>
+    <div class="certification-banner__title"><h1>{{currentUser.user.fullName}}</h1></div>
 
     <div class="certification-banner__certification-number">
-      #{{certificationNumber}}
+      <div class="certification-number__label">Id de certification</div>
+      <div class="certification-number__value">{{certificationNumber}}</div>
     </div>
   </div>
 </div>
