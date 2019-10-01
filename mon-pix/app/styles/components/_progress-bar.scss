@@ -1,8 +1,15 @@
 .progress-bar-container {
-  width: 122%;
-  margin-left: -11%;
-  margin-bottom: 100px;
+  margin-bottom: 60px;
   margin-top: 15px;
+  position: relative;
+
+  span.dot {
+    background: red;
+    height: 12px;
+    width: 12px;
+    border-radius: 10px;
+    margin: 2px;
+  }
 }
 
 .progress-bar-step {
@@ -68,7 +75,7 @@
 }
 
 .progress-bar-step.complete,
-.progress-bar-step.active, {
+.progress-bar-step.active {
   .progress-bar-stepnum {
     color: $white;
     opacity: 1;

@@ -1,7 +1,36 @@
-<div class="progress-bar-container">
-  {{#each this.steps as |step|}}
-    <div class="progress-bar-step {{step.status}}" style={{valueGaugeStyle}}>
-      {{progress-bar-item stepnum=step.stepnum}}
+  <div class="progress-bar-container">
+    <div style="
+    background: rgba(0,0,0,0.2);
+    height: 16px;
+    border-radius: 15px;
+    position: absolute;
+    width: 100%;
+"></div>
+    <div style="
+    background: white;
+    height: 16px;
+    border-radius: 15px;
+    width: 21.3%;
+    width: 41%;
+    position: absolute;
+    transition: 1s all ease;
+"></div>
+    <div style="
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+">
+
+<span class="dot" style="
+    background: red;
+    height: 12px;
+    width: 12px;
+    border-radius: 10px;
+    margin: 2px;
+"></span><span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
     </div>
-  {{/each}}
-</div>
+  </div>
