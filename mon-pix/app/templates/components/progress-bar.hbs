@@ -1,36 +1,19 @@
-  <div class="progress-bar-container">
-    <div style="
-    background: rgba(0,0,0,0.2);
-    height: 16px;
-    border-radius: 15px;
-    position: absolute;
-    width: 100%;
-"></div>
-    <div style="
-    background: white;
-    height: 16px;
-    border-radius: 15px;
-    width: 21.3%;
-    width: 41%;
-    position: absolute;
-    transition: 1s all ease;
-"></div>
-    <div style="
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    position: absolute;
-">
+<div class="challenge-progress-step">
+  <span>1</span>
+  <span>2</span>
+  <span>3</span>
+  <span>4</span>
+  <span>5</span>
+</div>
 
-<span class="dot" style="
-    background: red;
-    height: 12px;
-    width: 12px;
-    border-radius: 10px;
-    margin: 2px;
-"></span><span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
-    </div>
+<div class="progress-bar-container">
+  <div class="progress-path"></div>
+  <div class="progress-complete" style="width: {{progressBarWidths.[0]}}%;"></div>
+  <div class="dots-container">
+    <span class="progress-bar-dot"></span>
+    <span class="progress-bar-dot"></span>
+    <span class="progress-bar-dot"></span>
+    <span class="progress-bar-dot"></span>
+    <span class="progress-bar-dot"></span>
   </div>
+</div>

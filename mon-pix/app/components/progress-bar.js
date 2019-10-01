@@ -8,6 +8,8 @@ const CHECKPOINTS_MAX_STEPS = ENV.APP.NUMBER_OF_CHALLENGES_BETWEEN_TWO_CHECKPOIN
 
 export default Component.extend({
 
+  progressBarWidths: [1.8, 26.4, 50.9, 75.6, 100],
+
   _challengesToAnswerCount: computed('assessment.{hasCheckpoints,course.nbChallenges}', function() {
     if (this.get('assessment.hasCheckpoints')) {
       return CHECKPOINTS_MAX_STEPS;

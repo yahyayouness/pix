@@ -1,20 +1,71 @@
+.challenge-progress-step {
+  color: white;
+  font-weight: 600;
+}
+
 .progress-bar-container {
   margin-bottom: 60px;
-  margin-top: 15px;
+  margin-top: 5px;
   position: relative;
 
-  span.dot {
-    background: red;
+
+  .dots-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+  }
+
+  .progress-bar-dot {
+    background: $white;
     height: 12px;
     width: 12px;
     border-radius: 10px;
-    margin: 2px;
+    margin: 2px 3px;
+  }
+
+  .progress-bar-dot.active {
+    background: none;
+  }
+
+  .progress-bar-dot.complete {
+    background: $dogder-blue;
+  }
+
+  .progress-complete {
+    background: $white;
+    height: 16px;
+    border-radius: 15px;
+    position: absolute;
+    transition: 1s all ease;
+
+    &:after {
+      content: ' ';
+      width: 12px;
+      height: 12px;
+      background: $dogder-blue;
+      border-radius: 10px;
+      position: absolute;
+      top: 2px;
+      right: 3px;
+      z-index: 2;
+    }
+
   }
 }
 
-.progress-bar-step {
-  position: relative;
-  float: left;
+.progress-path {
+  background: rgba(0,0,0,0.2);
+  height: 16px;
+  border-radius: 15px;
+  position: absolute;
+  width: 100%;
+}
+
+.challenge-progress-step {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
 }
 
 .progress-bar-stepnum {
@@ -22,87 +73,4 @@
   opacity: 0.3;
   color: $black;
   font-size: 16px;
-}
-
-.progress-bar-progression {
-  position: relative;
-  height: 15px;
-  margin-top: 5px;
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-.progress-bar-progression-progress {
-  width:0px;
-  background: $white;
-  height: 100%;
-}
-
-.progress-bar-dot {
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  background: $white;
-  top: 45px;
-  left: 50%;
-  margin-top: -18px;
-  margin-left: -8px;
-  border-radius: 50%;
-}
-
-.progress-bar-step {
-  .progress-bar-dot:after {
-    content: ' ';
-    width: 10px;
-    height: 10px;
-    background: $dogder-blue;
-    border-radius: 50px;
-    position: absolute;
-    top: 3px;
-    left: 3px;
-  }
-}
-
-.progress-bar-step.complete {
-  .progress-bar-progression-progress {
-    width: 100%;
-  }
-}
-
-.progress-bar-step.active {
-  .progress-bar-progression-progress {
-    width: 50%;
-  }
-}
-
-.progress-bar-step.complete,
-.progress-bar-step.active {
-  .progress-bar-stepnum {
-    color: $white;
-    opacity: 1;
-  }
-}
-
-.progress-bar-step:first-child.active {
-  .progress-bar-progression-progress {
-    width: 0%;
-  }
-}
-
-.progress-bar-step:last-child.active {
-  .progress-bar-progression-progress {
-    width: 100%;
-  }
-}
-
-.progress-bar-step:first-child {
-  .progress-bar-progression {
-    left: 50%;
-    width: 50%;
-  }
-}
-
-.progress-bar-step:last-child {
-  .progress-bar-progression {
-    width: 50%;
-  }
 }
