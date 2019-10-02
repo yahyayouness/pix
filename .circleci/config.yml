@@ -56,22 +56,26 @@ workflows:
             - checkout
 
       - ember_build:
+          name: mon_pix_build_and_test
           directory: mon-pix
           parallelism: 3
           requires:
             - checkout
 
       - ember_build:
+          name: orga_build_and_test
           directory: orga
           requires:
             - checkout
 
       - ember_build:
+          name: certif_build_and_test
           directory: certif
           requires:
             - checkout
 
       - ember_build:
+          name: admin_build_and_test
           directory: admin
           requires:
             - checkout
