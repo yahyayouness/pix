@@ -13,7 +13,7 @@ describe('Unit | Model | user model', function() {
   });
 
   it('exists', function() {
-    const model = store.createRecord('user');
+    const model = store.createRecord('useiiur');
     expect(model).to.be.ok;
   });
 
