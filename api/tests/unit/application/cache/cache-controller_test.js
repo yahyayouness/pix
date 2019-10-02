@@ -1,4 +1,4 @@
-const { expect, sinon, hFake } = require('../../../test-helper');
+const { expect, sinon, streamToPromise } = require('../../../test-helper');
 const usecases = require('../../../../lib/domain/usecases');
 const cache = require('../../../../lib/infrastructure/caches/cache');
 const preloader = require('../../../../lib/infrastructure/caches/preloader');
@@ -25,7 +25,7 @@ describe('Unit | Controller | cache-controller', () => {
       usecases.reloadCacheEntry.resolves(numberOfDeletedKeys);
 
       // when
-      const response = await cacheController.reloadCacheEntry(request, hFake);
+      const response = await cacheController.reloadCacheEntry(request);
 
       // then
       expect(usecases.reloadCacheEntry).to.have.been.calledWith({
@@ -42,7 +42,7 @@ describe('Unit | Controller | cache-controller', () => {
       usecases.reloadCacheEntry.resolves(numberOfDeletedKeys);
 
       // when
-      const response = await cacheController.reloadCacheEntry(request, hFake);
+      const response = await cacheController.reloadCacheEntry(request);
 
       // Then
       expect(response).to.be.null;
@@ -54,7 +54,7 @@ describe('Unit | Controller | cache-controller', () => {
       usecases.reloadCacheEntry.resolves(numberOfDeletedKeys);
 
       // when
-      const response = await cacheController.reloadCacheEntry({ params: { cachekey: 'Epreuves' } }, hFake);
+      const response = await cacheController.reloadCacheEntry({ params: { cachekey: 'Epreuves' } });
 
       // Then
       expect(usecases.reloadCacheEntry).to.have.been.calledWith({
@@ -78,7 +78,7 @@ describe('Unit | Controller | cache-controller', () => {
       usecases.removeAllCacheEntries.resolves();
 
       // when
-      const response = await cacheController.removeAllCacheEntries(request, hFake);
+      const response = await cacheController.removeAllCacheEntries(request);
 
       // Then
       expect(usecases.removeAllCacheEntries).to.have.been.calledWith({ cache });
@@ -87,22 +87,60 @@ describe('Unit | Controller | cache-controller', () => {
   });
 
   describe('#preloadCacheEntries', () => {
-    const request = {};
+    let clock;
 
     beforeEach(() => {
       sinon.stub(usecases, 'preloadCacheEntries');
+      clock = sinon.useFakeTimers();
     });
 
-    it('should reply with null when there is no error', async () => {
+    afterEach(() => {
+      clock.restore();
+    });
+
+    it('should reply with JSON in a stream when there is no error', async () => {
       // given
-      usecases.preloadCacheEntries.resolves();
+      let resolveReloadPromise;
+      const reloadPromise = new Promise((resolve) => resolveReloadPromise = resolve);
+      usecases.preloadCacheEntries.returns(reloadPromise);
 
       // when
-      const response = await cacheController.preloadCacheEntries(request, hFake);
+      const responseStream = cacheController.preloadCacheEntries();
+
+      // record response stream
+      const responsePromise = streamToPromise(responseStream);
+
+      let responseStreamWritten = false;
+      responseStream.on('data', () => {
+        responseStreamWritten = true;
+      });
+
+      // when: time passes
+      clock.tick(5000);
+
+      // then: something must have been written to the stream, to keep the connection alive
+      expect(responseStreamWritten).to.be.true;
+
+      // when: reloading is complete
+      resolveReloadPromise();
+
+      // wait for response stream to end
+      const response = await responsePromise;
+
+      // then
+      expect(usecases.preloadCacheEntries).to.have.been.calledWith({ preloader, logger });
+      expect(JSON.parse(response)).to.deep.equal({ success: true });
+    });
+
+    it('should reply with JSON in a stream when there is an error', async () => {
+      // given
+      usecases.preloadCacheEntries.rejects();
+
+      // when
+      const response = await streamToPromise(cacheController.preloadCacheEntries());
 
       // Then
-      expect(usecases.preloadCacheEntries).to.have.been.calledWith({ preloader, logger });
-      expect(response).to.be.null;
+      expect(JSON.parse(response)).to.deep.equal({ success: false });
     });
   });
 });
