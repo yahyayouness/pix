@@ -7,7 +7,7 @@
   background-color: $porcelain-grey;
   font-family: $font-lato;
   color: $charcoal-grey;
-  font-size: 12px;
+  font-size: 1.2rem;
   letter-spacing: 0.5px;;
 
   @include device-is('tablet') {
@@ -30,13 +30,13 @@
 }
 
 .board-page__header-organisation__text {
-  font-size: 12px;
+  font-size: 1.2rem;
   font-weight: $font-bold;
   text-transform: uppercase;
 }
 
 .board-page__header-organisation__name {
-  font-size: 24px;
+  font-size: 2.4rem;
 }
 
 .board-page__header-code {
@@ -48,17 +48,17 @@
 }
 
 .board-page__header-code__title {
-  font-size: 12px;
+  font-size: 1.2rem;
   font-weight: $font-bold;
   text-transform: uppercase;
 }
 
 .board-page__header-code__text {
-  font-size: 24px;
+  font-size: 2.4rem;
 }
 
 .board-page__header-code__comment {
-  font-size: 15px;
+  font-size: 1.5rem;
   color: $jumbo-grey;
 }
 
@@ -68,10 +68,10 @@
   background-color: $porcelain-grey;
   font-family: $font-open-sans;
   color: $charcoal-grey;
-  font-size: 28px;
+  font-size: 2.8rem;
 
   .too-many-snapshots {
-    font-size: 14px;
+    font-size: 1.4rem;
   }
 
   @include device-is('tablet') {
@@ -104,7 +104,7 @@
     color: $white;
   }
   @include device-is('tablet') {
-    font-size: 16px;
+    font-size: 1.6rem;
     height: 40px;
     width: 190px;
     margin-top: 8px;

@@ -20,7 +20,7 @@
 
 .logged-user-name {
   font-family: $font-lato;
-  font-size: 14px;
+  font-size: 1.4rem;
   font-weight: $font-bold;
   letter-spacing: 0.5px;
   text-align: right;
@@ -84,7 +84,7 @@
 .user-menu-item__details-firstname {
   display:flex;
   font-family: $font-lato;
-  font-size: 18px;
+  font-size: 1.8rem;
   letter-spacing: 1px;
   color: $charcoal-grey;
   text-transform: capitalize;
@@ -96,13 +96,13 @@
   font-family: $font-lato;
   letter-spacing: 0.3px;
   color: $slate-grey;
-  font-size: 14px;
+  font-size: 1.4rem;
   margin-bottom: 20px;
 }
 
 .user-menu-item__link {
   background-color: white;
-  font-size: 13px;
+  font-size: 1.3rem;
   line-height: 16px;
   height: 35px;
 }
@@ -113,7 +113,7 @@
 .user-menu-item__link a{
   color: $dove-gray;
   font-family: $font-lato;
-  font-size: 13px;
+  font-size: 1.3rem;
 }
 
 

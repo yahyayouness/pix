@@ -33,9 +33,9 @@
 
 .signup-form__cgu-label span {
   color: $slate-grey;
-  font-size: 13px;
+  font-size: 1.3rem;
   @include device-is('tablet') {
-    font-size: 14px;
+    font-size: 1.4rem;
   }
 }
 
@@ -43,7 +43,7 @@
   display: block;
   max-width: 100%;
   padding: 10px;
-  font-size: 11px;
+  font-size: 1.1rem;
 
   @include device-is('tablet') {
     padding: 10px 0;

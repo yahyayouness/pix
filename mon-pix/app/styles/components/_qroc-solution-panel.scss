@@ -10,21 +10,21 @@
 
 .correction-qroc-box__input-right-answer {
   font-family: $font-lato;
-  font-size: 16px;
+  font-size: 1.6rem;
   font-weight: $font-bold;
   color: $caribbean-green;
 }
 
 .correction-qroc-box__input-wrong-answer {
   font-family: $font-lato;
-  font-size: 16px;
+  font-size: 1.6rem;
   color: $charcoal-grey;
   text-decoration: line-through;
 }
 
 .correction-qroc-box__input-no-answer {
   font-family: $font-lato;
-  font-size: 16px;
+  font-size: 1.6rem;
   color: $charcoal-grey;
   font-style: italic;
 }
@@ -37,7 +37,7 @@
 
 .correction-qroc-box__solution-text {
   font-family: $font-lato;
-  font-size: 16px;
+  font-size: 1.6rem;
   font-weight: $font-bold;
   color: $caribbean-green;
   display: flex;
