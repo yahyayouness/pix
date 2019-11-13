@@ -12,6 +12,11 @@ exports.register = async (server) => {
         payload: {
           allow: 'application/x-www-form-urlencoded'
         },
+        plugins: {
+          'hapi-swagger': {
+            payloadType: 'form'
+          }
+        },
         validate: {
           payload: Joi.object().required().keys({
             grant_type: 'password',
