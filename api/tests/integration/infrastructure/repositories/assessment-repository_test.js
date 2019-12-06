@@ -732,4 +732,52 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
     });
   });
 
+  describe('#resetCurrentChallenge', () => {
+    let assessmentId;
+    beforeEach(async () => {
+      assessmentId = databaseBuilder.factory.buildAssessment({
+        currentChallengeId: 'recChallengeId'
+      }).id;
+      await databaseBuilder.commit();
+    });
+
+    afterEach(async () => {
+      await databaseBuilder.clean();
+    });
+
+    it('should set the currentChallengeId to null', async () => {
+      // when
+      const assessment = await assessmentRepository.resetCurrentChallenge(assessmentId);
+
+      // then
+      expect(assessment.currentChallengeId).to.be.null;
+    });
+
+  });
+
+  describe('#updateCurrentChallenge', () => {
+    let assessmentId;
+    beforeEach(async () => {
+      assessmentId = databaseBuilder.factory.buildAssessment({
+        currentChallengeId: null
+      }).id;
+      await databaseBuilder.commit();
+    });
+
+    afterEach(async () => {
+      await databaseBuilder.clean();
+    });
+
+    it('should set the currentChallengeId passed', async () => {
+      // given
+      const currentChallengeId = 'recNewChallengeId';
+      // when
+      const assessment = await assessmentRepository.updateCurrentChallenge(assessmentId, currentChallengeId);
+
+      // then
+      expect(assessment.currentChallengeId).to.equal(currentChallengeId);
+    });
+
+  });
+
 });

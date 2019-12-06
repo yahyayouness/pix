@@ -130,6 +130,21 @@ module.exports = {
       .save({ state }, { require: true, patch: true })
       .then((assessment) => bookshelfToDomainConverter.buildDomainObject(BookshelfAssessment, assessment));
   },
+
+  resetCurrentChallenge(id) {
+    return BookshelfAssessment
+      .where({ id })
+      .save({ currentChallengeId: null }, { require: true, patch: true })
+      .then((assessment) => bookshelfToDomainConverter.buildDomainObject(BookshelfAssessment, assessment));
+  },
+
+  updateCurrentChallenge(id, currentChallengeId) {
+    return BookshelfAssessment
+      .where({ id })
+      .save({ currentChallengeId }, { require: true, patch: true })
+      .then((assessment) => bookshelfToDomainConverter.buildDomainObject(BookshelfAssessment, assessment));
+  },
+
 };
 
 function _selectLastAssessmentForEachCourse(bookshelfAssessments) {
