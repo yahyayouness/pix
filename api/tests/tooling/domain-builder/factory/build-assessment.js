@@ -24,6 +24,7 @@ function buildAssessment({
   assessmentResults = [buildAssessmentResult()],
   campaignParticipation = null,
   competenceId = null,
+  currentChallengeId = null,
 } = {}) {
 
   return new Assessment({
@@ -42,6 +43,7 @@ function buildAssessment({
     assessmentResults,
     course,
     campaignParticipation,
+    currentChallengeId
   });
 }
 
@@ -63,6 +65,7 @@ buildAssessment.ofTypeSmartPlacement = function({
   campaignParticipation = null,
   campaignParticipationId = null,
   title = 'campaignTitle',
+  currentChallengeId = null,
 } = {}) {
   if (!_.isNil(campaignParticipation) && _.isNil(campaignParticipationId)) {
     campaignParticipationId = campaignParticipation.id;
@@ -94,7 +97,8 @@ buildAssessment.ofTypeSmartPlacement = function({
     course,
     targetProfile,
     knowledgeElements,
-    campaignParticipation
+    campaignParticipation,
+    currentChallengeId
   });
 };
 
@@ -116,6 +120,7 @@ buildAssessment.ofTypeCompetenceEvaluation = function({
   knowledgeElements = [buildKnowledgeElement()],
   campaignParticipation = null,
   competenceId = faker.random.number(),
+  currentChallengeId = null
 } = {}) {
 
   return new Assessment({
@@ -137,7 +142,8 @@ buildAssessment.ofTypeCompetenceEvaluation = function({
     course,
     targetProfile,
     knowledgeElements,
-    campaignParticipation
+    campaignParticipation,
+    currentChallengeId
   });
 };
 

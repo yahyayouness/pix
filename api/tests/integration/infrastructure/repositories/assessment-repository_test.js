@@ -261,6 +261,7 @@ describe('Integration | Infrastructure | Repositories | assessment-repository', 
           isImproving: false,
           campaignParticipationId: null,
           competenceId: johnAssessmentToRemember.competenceId,
+          currentChallengeId: null,
           assessmentResults: [
             {
               id: johnAssessmentResultToRemember.id,

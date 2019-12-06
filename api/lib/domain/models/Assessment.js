@@ -43,6 +43,7 @@ class Assessment {
     course,
     targetProfile,
     // references
+    currentChallengeId,
     courseId,
     userId,
     competenceId,
@@ -62,6 +63,7 @@ class Assessment {
     this.course = course;
     this.targetProfile = targetProfile;
     // references
+    this.currentChallengeId = currentChallengeId;
     this.courseId = courseId;
     this.userId = userId;
     this.competenceId = competenceId;

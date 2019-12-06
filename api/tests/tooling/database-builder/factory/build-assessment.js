@@ -15,6 +15,7 @@ module.exports = function buildAssessment({
   campaignParticipationId = null,
   createdAt = faker.date.past(),
   updatedAt = faker.date.past(),
+  currentChallengeId = null,
 } = {}) {
 
   if (type != 'DEMO') {
@@ -32,6 +33,7 @@ module.exports = function buildAssessment({
     updatedAt,
     competenceId,
     campaignParticipationId,
+    currentChallengeId,
   };
   return databaseBuffer.pushInsertable({
     tableName: 'assessments',
