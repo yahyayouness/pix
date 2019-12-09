@@ -2,6 +2,7 @@ const fp = require('lodash/fp');
 const Answer = require('../../domain/models/Answer');
 const answerStatusDatabaseAdapter = require('../adapters/answer-status-database-adapter');
 const BookshelfAnswer = require('../data/answer');
+const CertificationChallengeBookshelf = require('../data/certification-challenge');
 const Bookshelf = require('../bookshelf');
 const { NotFoundError } = require('../../domain/errors');
 const jsYaml = require('js-yaml');
@@ -95,6 +96,24 @@ module.exports = {
   },
 
   save(answer) {
+    return Promise.resolve(answer)
+      .then(_adaptModelToDb)
+      .then((rawDBAnswerModel) => new BookshelfAnswer(rawDBAnswerModel))
+      .then((answerBookshelf) => answerBookshelf.save())
+      .then(_toDomain);
+  },
+
+  saveIfNotAlreadyAnsweredChallenge(answer) {
+    // TODO : finish this method + add its test
+    const answeredChallengeIds = Bookshelf.knex('answers')
+      .select('challengeId')
+      .where({ assessmentId: answer.assessmentId });
+
+    const nonAnsweredChallenge = CertificationChallengeBookshelf
+      .where({ courseId: answer.courseId })
+      .query((knex) => knex.whereNotIn('challengeId', answeredChallengeIds))
+      .fetch();
+
     return Promise.resolve(answer)
       .then(_adaptModelToDb)
       .then((rawDBAnswerModel) => new BookshelfAnswer(rawDBAnswerModel))

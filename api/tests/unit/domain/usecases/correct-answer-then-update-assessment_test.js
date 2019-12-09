@@ -8,7 +8,7 @@ const correctAnswerThenUpdateAssessment = require('../../../../lib/domain/usecas
 
 const { ChallengeAlreadyAnsweredError, NotFoundError, ForbiddenAccess } = require('../../../../lib/domain/errors');
 
-describe('Unit | Domain | Use Cases | correct-answer-then-update-assessment', () => {
+describe.only('Unit | Domain | Use Cases | correct-answer-then-update-assessment', () => {
 
   const answerRepository = {
     findByChallengeAndAssessment: () => undefined,

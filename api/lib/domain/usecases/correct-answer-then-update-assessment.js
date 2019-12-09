@@ -8,7 +8,7 @@ const constants = require('../constants');
 const Examiner = require('../models/Examiner');
 const KnowledgeElement = require('../models/KnowledgeElement');
 
-module.exports = async function correctAnswerThenUpdateAssessment(
+module.exports = async function a(
   {
     answer,
     userId,
@@ -23,23 +23,24 @@ module.exports = async function correctAnswerThenUpdateAssessment(
     knowledgeElementRepository,
   } = {}) {
   let scorecardBeforeAnswer;
-  const answersFind = await answerRepository.findByChallengeAndAssessment({
-    assessmentId: answer.assessmentId,
-    challengeId: answer.challengeId,
-  });
-
+  // TODO : remove this when saveIfNotAlreadyAnsweredChallenge is finished
+  // const answersFind = await answerRepository.findByChallengeAndAssessment({
+  //   assessmentId: answer.assessmentId,
+  //   challengeId: answer.challengeId,
+  // });
+  
   const assessment = await assessmentRepository.get(answer.assessmentId);
-
+  
   if (assessment.userId !== userId) {
     throw new ForbiddenAccess('User is not allowed to add an answer for this assessment.');
   }
-
-  if (answersFind) {
-    throw new ChallengeAlreadyAnsweredError();
-  }
-
+  
+  // if (answersFind) {
+  //   throw new ChallengeAlreadyAnsweredError();
+  // }
+  
   const challenge = await challengeRepository.get(answer.challengeId);
-
+  
   const correctedAnswer = evaluateAnswer(challenge, answer);
 
   if (correctedAnswer.result.isOK() && (assessment.isCompetenceEvaluation() || assessment.isSmartPlacement())) {
@@ -53,7 +54,7 @@ module.exports = async function correctAnswerThenUpdateAssessment(
     });
   }
 
-  const answerSaved = await answerRepository.save(correctedAnswer);
+  const answerSaved = await answerRepository.saveIfNotAlreadyAnsweredChallenge(correctedAnswer);
   let savedKnowledgeElements = [];
   if (assessment.isCompetenceEvaluation()) {
     savedKnowledgeElements = await saveKnowledgeElementsForCompetenceEvaluation({
