@@ -38,7 +38,6 @@
     "@fortawesome/free-brands-svg-icons": "^5.8.2",
     "@fortawesome/free-regular-svg-icons": "^5.8.2",
     "@fortawesome/free-solid-svg-icons": "^5.8.2",
-    "bootstrap": "^3.4.1",
     "broccoli-asset-rev": "^3.0.0",
     "chai-dom": "^1.8.1",
     "ember-ajax": "^5.0.0",
