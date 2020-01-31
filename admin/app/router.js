@@ -46,7 +46,9 @@ Router.map(function() {
     this.route('users', function() {
       this.route('list');
     });
-    this.route('tools');
+    this.route('tools', function() {
+      this.route('learning-content');
+    });
   });
 });
 

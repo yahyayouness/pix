@@ -4,7 +4,7 @@ import { setupApplicationTest } from 'ember-qunit';
 import { authenticateSession } from 'ember-simple-auth/test-support';
 import setupMirage from 'ember-cli-mirage/test-support/setup-mirage';
 
-module('Acceptance | tools page', function(hooks) {
+module('Acceptance | tools | learning content page', function(hooks) {
   setupApplicationTest(hooks);
   setupMirage(hooks);
 
@@ -16,17 +16,17 @@ module('Acceptance | tools page', function(hooks) {
 
     test('Tools page should be accessible from /tools', async function(assert) {
       // when
-      await visit('/tools');
+      await visit('/tools/learning-content');
 
       // then
-      assert.equal(currentURL(), '/tools');
+      assert.equal(currentURL(), '/tools/learning-content');
     });
   });
 
   module('Rendering', function(hooks) {
 
     hooks.beforeEach(async function() {
-      await visit('/tools');
+      await visit('/tools/learning-content');
     });
 
     test('Should content "Learning content" section', async function(assert) {
