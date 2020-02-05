@@ -9,20 +9,23 @@ Feature: Connexion
     Then je suis redirigé vers le profil de "Daenerys"
     When je me déconnecte
     Then je suis redirigé vers la page "/connexion"
+    And il n'y a pas de données utilisateur en mémoire
 
   Scenario: Je suis connecté et ma session expire puis je rejoins une nouvelle page
     Given je vais sur Pix
     When je suis connecté avec un compte dont le token expire bientôt
     Then je suis redirigé vers le profil de "Daenerys"
     When j'attends 3000 ms
-    And je vais sur la page "/mes-certifications"
+    And je clique sur "Certification"
     Then je suis redirigé vers la page "/connexion"
+    And il n'y a pas de données utilisateur en mémoire
 
   Scenario: Je me connecte via un organisme externe puis je me déconnecte
     When je vais sur Pix via un organisme externe
     Then je suis redirigé vers le profil de "Daenerys"
     When je me déconnecte
     Then je suis redirigé vers la page "/nonconnecte"
+    And il n'y a pas de données utilisateur en mémoire
 
   Scenario: Je me connecte via un organisme externe alors qu'il y a une personne déjà connectée puis je me déconnecte
     Given je suis connecté à Pix en tant que "John Snow"
@@ -30,3 +33,4 @@ Feature: Connexion
     Then je suis redirigé vers le profil de "Daenerys"
     When je me déconnecte
     Then je suis redirigé vers la page "/nonconnecte"
+    And il n'y a pas de données utilisateur en mémoire

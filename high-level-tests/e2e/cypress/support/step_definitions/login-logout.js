@@ -60,3 +60,10 @@ when(`je me déconnecte`, () => {
 then(`je suis redirigé vers la page {string}`, (pathname) => {
   cy.url().should('include', pathname);
 });
+
+then(`il n'y a pas de données utilisateur en mémoire`, () => {
+  cy.window().then((win) => {
+    const app = win.Ember.Namespace.NAMESPACES.find(({name}) => name === 'mon-pix');
+    return app.__container__.lookup('service:store').peekAll('user').length;
+  }).should('equal', 0);
+});
