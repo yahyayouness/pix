@@ -21,6 +21,14 @@ export default Route.extend(ApplicationRouteMixin, {
       });
   },
 
+  sessionInvalidated() {
+    if (this.session.noRedirectAfterLogin) {
+      delete this.session.noRedirectAfterLogin;
+    } else {
+      this._super(...arguments);
+    }
+  },
+
   _loadCurrentUser() {
     return this.currentUser.load();
   },

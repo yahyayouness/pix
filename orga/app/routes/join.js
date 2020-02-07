@@ -1,7 +1,17 @@
 import Route from '@ember/routing/route';
-import UnauthenticatedRouteMixin from 'ember-simple-auth/mixins/unauthenticated-route-mixin';
+import { inject } from '@ember/service';
 
-export default Route.extend(UnauthenticatedRouteMixin, {
+export default Route.extend({
+
+  session: inject(),
+
+  beforeModel() {
+    this._super(...arguments);
+    if (this.get('session.isAuthenticated')) {
+      this.session.noRedirectAfterLogin = true;
+      this.session.invalidate();
+    }
+  },
 
   model(params) {
     return this.store.queryRecord('organization-invitation', {
