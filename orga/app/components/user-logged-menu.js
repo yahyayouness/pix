@@ -43,7 +43,7 @@ export default Component.extend({
     },
 
     async onOrganizationChange(organizationId) {
-      await this.currentUser.updateMainOrganization(organizationId);
+      await this.currentUser.setMainOrganization(organizationId);
       this.router.replaceWith('/');
     }
   }

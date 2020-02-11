@@ -10,6 +10,7 @@ export default DS.Model.extend({
   cgu: DS.attr('boolean'),
   pixOrgaTermsOfServiceAccepted: DS.attr('boolean'),
   memberships: DS.hasMany('membership'),
+  organizationUserInformations: DS.belongsTo('organization-user-information'),
 
   fullName: computed('firstName', 'lastName', function() {
     return `${this.get('firstName')} ${this.get('lastName')}`;

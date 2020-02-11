@@ -127,6 +127,22 @@ module('Unit | Service | current-user', function(hooks) {
       // Then
       assert.equal(currentUser.canAccessStudentsPage, false);
     });
+
+    test('should prefer organization from organizationUserInformations rather than first membership', async function(assert) {
+      // Given
+      const organization1 = Object.create({ id: 9, type: 'SCO', isManagingStudents: false, isSco: true });
+      const organization2 = Object.create({ id: 10, type: 'SCO', isManagingStudents: false, isSco: true });
+      const membership1 = Object.create({ userId: connectedUser.id, organization: organization1, organizationRole: 'ADMIN', isAdmin: true });
+      const membership2 = Object.create({ userId: connectedUser.id, organization: organization2, organizationRole: 'ADMIN', isAdmin: true });
+      connectedUser.memberships = [membership1, membership2];
+      connectedUser.organizationUserInformations = Object.create({ organization: organization2 });
+
+      // When
+      await currentUser.load();
+
+      // Then
+      assert.equal(currentUser.organization.id, organization2.id);
+    });
   });
 
   module('user is not authenticated', function() {
@@ -172,7 +188,7 @@ module('Unit | Service | current-user', function(hooks) {
     });
   });
 
-  module('#updateMainOrganization', function(hooks) {
+  module('#setMainOrganization', function(hooks) {
 
     let currentUser;
 
@@ -182,7 +198,8 @@ module('Unit | Service | current-user', function(hooks) {
       const secondOrganization = Object.create({ id: 2, name: 'Second Organization', isSco: true, isManagingStudents: true });
       const firstMembership = Object.create({ organization: firstOrganization, isAdmin: true });
       const secondMembership = Object.create({ organization: secondOrganization, isAdmin: false });
-      const connectedUser = Object.create({ id: connectedUserId, memberships: [firstMembership, secondMembership] });
+      const organizationUserInformations = Object.create({ organization : firstOrganization });
+      const connectedUser = Object.create({ id: connectedUserId, memberships: [firstMembership, secondMembership], organizationUserInformations });
       const storeStub = Service.create({
         queryRecord: () => resolve(connectedUser)
       });
@@ -202,7 +219,7 @@ module('Unit | Service | current-user', function(hooks) {
       const organizationId = 2;
 
       // When
-      await currentUser.updateMainOrganization(organizationId);
+      await currentUser.setMainOrganization(organizationId);
 
       // Then
       assert.equal(currentUser.organization.id, organizationId);
@@ -215,7 +232,7 @@ module('Unit | Service | current-user', function(hooks) {
       const organizationId = 3;
 
       // When
-      await currentUser.updateMainOrganization(organizationId);
+      await currentUser.setMainOrganization(organizationId);
 
       // Then
       assert.equal(currentUser.organization.id, 1);

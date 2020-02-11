@@ -12,11 +12,18 @@ export default Service.extend({
       try {
         const user = await this.store.queryRecord('user', { me: true });
         const userMemberships = await user.get('memberships');
-        const userMembership = await userMemberships.get('firstObject');
+        const organizationUserInformations = await user.get('organizationUserInformations');
+
         this.set('user', user);
         this.set('memberships', userMemberships);
 
-        return this._setOrganizationValues(userMembership);
+        if (organizationUserInformations) {
+          const currentOrganization = await organizationUserInformations.get('organization');
+          return this.setMainOrganization(currentOrganization.id);
+        }
+
+        const firstMembership = await userMemberships.get('firstObject');
+        return this._setOrganizationValues(firstMembership);
       } catch (error) {
         if (_.get(error, 'errors[0].code') === 401) {
           return this.session.invalidate();
@@ -25,7 +32,7 @@ export default Service.extend({
     }
   },
 
-  async updateMainOrganization(organizationId) {
+  async setMainOrganization(organizationId) {
     const user = this.get('user');
     const memberships = await user.get('memberships').toArray();
     for (const membership of memberships) {
