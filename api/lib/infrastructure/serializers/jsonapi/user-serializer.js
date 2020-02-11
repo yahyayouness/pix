@@ -8,6 +8,9 @@ module.exports = {
       transform: (untouchedUser) => {
         const user = Object.assign({}, untouchedUser);
         user.certificationProfile = undefined;
+        if (!user.organizationUserInformations) {
+          delete user.organizationUserInformations;
+        }
         return user;
       },
       attributes: [
@@ -15,6 +18,7 @@ module.exports = {
         'pixCertifTermsOfServiceAccepted', 'memberships',
         'certificationCenterMemberships', 'pixScore', 'scorecards',
         'campaignParticipations', 'hasSeenAssessmentInstructions', 'certificationProfile',
+        'organizationUserInformations'
       ],
       memberships: {
         ref: 'id',
@@ -67,6 +71,15 @@ module.exports = {
         relationshipLinks: {
           related: function(record, current, parent) {
             return `/api/users/${parent.id}/certification-profile`;
+          }
+        }
+      },
+      organizationUserInformations: {
+        ref: 'id',
+        ignoreRelationshipData: true,
+        relationshipLinks: {
+          related(record, current, parent) {
+            return `/api/users/${parent.id}/organization-user-informations`;
           }
         }
       },

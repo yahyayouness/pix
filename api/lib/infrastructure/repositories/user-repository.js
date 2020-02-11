@@ -146,7 +146,7 @@ module.exports = {
   get(userId) {
     return BookshelfUser
       .where({ id: userId })
-      .fetch({ require: true })
+      .fetch({ require: true, withRelated: ['organizationUserInformations'] })
       .then((user) => bookshelfToDomainConverter.buildDomainObject(BookshelfUser, user))
       .catch((err) => {
         if (err instanceof BookshelfUser.NotFoundError) {
