@@ -29,6 +29,7 @@ module.exports = {
   buildHint: require('./build-hint'),
   buildMembership: require('./build-membership'),
   buildOrganization: require('./build-organization'),
+  buildOrganizationUserInformations: require('./build-organization-user-informations'),
   buildOrganizationInvitation: require('./build-organization-invitation'),
   buildPixRole: require('./build-pix-role'),
   buildResultCompetenceTree: require('./build-result-competence-tree'),

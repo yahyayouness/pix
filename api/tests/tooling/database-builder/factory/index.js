@@ -15,6 +15,7 @@ module.exports = {
   buildKnowledgeElement: require('./build-knowledge-element'),
   buildOrganization: require('./build-organization'),
   buildOrganizationInvitation: require('./build-organization-invitation'),
+  buildOrganizationUserInformations: require('./build-organization-user-informations'),
   buildMembership: require('./build-membership'),
   buildPixRole: require('./build-pix-role'),
   buildSession: require('./build-session'),
