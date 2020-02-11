@@ -255,4 +255,26 @@ describe('Unit | Router | user-router', () => {
       });
     });
   });
+
+  describe('GET /api/users/{id}/organization-user-informations', function() {
+    beforeEach(() => {
+      sinon.stub(userController, 'getOrganizationUserInformations').returns('ok');
+      sinon.stub(securityController, 'checkRequestedUserIsAuthenticatedUser').callsFake((request, h) => h.response(true));
+      startServer();
+    });
+
+    it('should exist', () => {
+      // given
+      const options = {
+        method: 'GET',
+        url: '/api/users/12/organization-user-informations',
+      };
+
+      // when
+      return server.inject(options).then(() => {
+        // then
+        sinon.assert.calledOnce(userController.getOrganizationUserInformations);
+      });
+    });
+  });
 });

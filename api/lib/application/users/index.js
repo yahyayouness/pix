@@ -99,6 +99,23 @@ exports.register = async function(server) {
       }
     },
     {
+      method: 'GET',
+      path: '/api/users/{id}/organization-user-informations',
+      config: {
+        pre: [{
+          method: securityController.checkRequestedUserIsAuthenticatedUser,
+          assign: 'requestedUserIsAuthenticatedUser'
+        }],
+        handler: userController.getOrganizationUserInformations,
+        notes : [
+          '- **Cette route est restreinte aux utilisateurs authentifiés**\n' +
+          '- Récupération des informations utilisateurs relatives à Pix Orga\n' +
+          '- L’id demandé doit correspondre à celui de l’utilisateur authentifié',
+        ],
+        tags: ['api', 'user', 'organizationUserInformations']
+      }
+    },
+    {
       method: 'PATCH',
       path: '/api/users/{id}/password-update',
       config: {

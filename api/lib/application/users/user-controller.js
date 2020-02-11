@@ -2,6 +2,7 @@ const campaignParticipationSerializer = require('../../infrastructure/serializer
 const certificationCenterMembershipSerializer = require('../../infrastructure/serializers/jsonapi/certification-center-membership-serializer');
 const certificationProfileSerializer = require('../../infrastructure/serializers/jsonapi/certification-profile-serializer');
 const membershipSerializer = require('../../infrastructure/serializers/jsonapi/membership-serializer');
+const organizationUserInformationsSerializer = require('../../infrastructure/serializers/jsonapi/organization-user-informations-serializer');
 const pixScoreSerializer = require('../../infrastructure/serializers/jsonapi/pix-score-serializer');
 const scorecardSerializer = require('../../infrastructure/serializers/jsonapi/scorecard-serializer');
 const userSerializer = require('../../infrastructure/serializers/jsonapi/user-serializer');
@@ -128,4 +129,11 @@ module.exports = {
     return usecases.resetScorecard({ userId: authenticatedUserId, competenceId })
       .then(scorecardSerializer.serialize);
   },
+
+  getOrganizationUserInformations(request) {
+    const authenticatedUserId = request.auth.credentials.userId;
+
+    return usecases.getUserWithOrganizationInformations({ userId: authenticatedUserId })
+      .then((user) => organizationUserInformationsSerializer.serialize(user.organizationUserInformations));
+  }
 };

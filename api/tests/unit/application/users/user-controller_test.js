@@ -16,6 +16,7 @@ const usecases = require('../../../../lib/domain/usecases');
 const campaignParticipationSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/campaign-participation-serializer');
 const certificationCenterMembershipSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/certification-center-membership-serializer');
 const membershipSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/membership-serializer');
+const organizationUserInformationsSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/organization-user-informations-serializer');
 const scorecardSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/scorecard-serializer');
 const userSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/user-serializer');
 const validationErrorSerializer = require('../../../../lib/infrastructure/serializers/jsonapi/validation-error-serializer');
@@ -266,6 +267,38 @@ describe('Unit | Controller | user-controller', () => {
 
       // when
       const response = await userController.getMemberships(request, hFake);
+
+      // then
+      expect(response).to.deep.equal({});
+    });
+  });
+
+  describe('#getOrganizationUserInformations', () => {
+    const userId = '1';
+
+    const request = {
+      auth: {
+        credentials: {
+          userId: userId
+        }
+      },
+      params: {
+        id: userId
+      }
+    };
+
+    beforeEach(() => {
+      sinon.stub(organizationUserInformationsSerializer, 'serialize');
+      sinon.stub(usecases, 'getUserWithOrganizationInformations');
+    });
+
+    it('should return serialized OrganizationUserInformations', async function() {
+      // given
+      usecases.getUserWithOrganizationInformations.withArgs({ userId }).resolves({ organizationUserInformations: {}  });
+      organizationUserInformationsSerializer.serialize.withArgs({}).returns({});
+
+      // when
+      const response = await userController.getOrganizationUserInformations(request, hFake);
 
       // then
       expect(response).to.deep.equal({});
