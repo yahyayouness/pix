@@ -10,6 +10,7 @@ const {
 const userRepository = require('../../../../lib/infrastructure/repositories/user-repository');
 const User = require('../../../../lib/domain/models/User');
 const Membership = require('../../../../lib/domain/models/Membership');
+const OrganizationUserInformations = require('../../../../lib/domain/models/OrganizationUserInformations');
 const CertificationCenter = require('../../../../lib/domain/models/CertificationCenter');
 const CertificationCenterMembership = require('../../../../lib/domain/models/CertificationCenterMembership');
 const Organization = require('../../../../lib/domain/models/Organization');
@@ -28,6 +29,7 @@ describe('Integration | Infrastructure | Repository | UserRepository', () => {
   let userInDB;
   let organizationInDB, organizationRoleInDB;
   let membershipInDB;
+  let organizationUserInformationsInDB;
   let certificationCenterInDB, certificationCenterMembershipInDB;
 
   function _insertUserWithOrganizationsAndCertificationCenterAccesses() {
@@ -44,6 +46,11 @@ describe('Integration | Infrastructure | Repository | UserRepository', () => {
       userId: userInDB.id,
       organizationRole: organizationRoleInDB,
       organizationId: organizationInDB.id
+    });
+
+    organizationUserInformationsInDB = databaseBuilder.factory.buildOrganizationUserInformations({
+      userId: userInDB.id,
+      currentOrganizationId: organizationInDB.id
     });
 
     certificationCenterInDB = databaseBuilder.factory.buildCertificationCenter();
@@ -387,6 +394,62 @@ describe('Integration | Infrastructure | Repository | UserRepository', () => {
 
         // when
         const result = await catchErr(userRepository.getWithCertificationCenterMemberships)(unknownUserId);
+
+        // then
+        expect(result).to.be.instanceOf(UserNotFoundError);
+      });
+    });
+
+    describe('#getWithOrganizationInformations', () => {
+
+      beforeEach(async () => {
+        await _insertUserWithOrganizationsAndCertificationCenterAccesses();
+      });
+
+      it('should return user for the given id', async () => {
+        // given
+        const expectedUser = new User(userInDB);
+
+        // when
+        const user = await userRepository.getWithOrganizationInformations(userInDB.id);
+
+        // then
+        expect(user).to.be.an.instanceof(User);
+        expect(user.id).to.equal(expectedUser.id);
+        expect(user.firstName).to.equal(expectedUser.firstName);
+        expect(user.lastName).to.equal(expectedUser.lastName);
+        expect(user.email).to.equal(expectedUser.email);
+        expect(user.password).to.equal(expectedUser.password);
+        expect(user.cgu).to.equal(expectedUser.cgu);
+      });
+
+      it('should return organization-user-informations associated to the user', async () => {
+        // when
+        const user = await userRepository.getWithOrganizationInformations(userInDB.id);
+
+        // then
+        expect(user.organizationUserInformations).to.be.an('Object');
+
+        const organizationUserInformations = user.organizationUserInformations;
+        expect(organizationUserInformations).to.be.an.instanceof(OrganizationUserInformations);
+        expect(organizationUserInformations.id).to.equal(organizationUserInformationsInDB.id);
+
+        const associatedOrganization = organizationUserInformations.currentOrganization;
+        expect(associatedOrganization).to.be.an.instanceof(Organization);
+        expect(associatedOrganization.id).to.equal(organizationInDB.id);
+        expect(associatedOrganization.code).to.equal(organizationInDB.code);
+        expect(associatedOrganization.name).to.equal(organizationInDB.name);
+        expect(associatedOrganization.type).to.equal(organizationInDB.type);
+
+        expect(organizationUserInformations.organizationRole).to.equal(organizationUserInformationsInDB.organizationRole);
+      });
+
+      it('should reject with a UserNotFound error when no user was found with the given id', async () => {
+        // given
+        const unknownUserId = 666;
+
+        // when
+        const result = await catchErr(userRepository.getWithOrganizationInformations)(unknownUserId);
 
         // then
         expect(result).to.be.instanceOf(UserNotFoundError);

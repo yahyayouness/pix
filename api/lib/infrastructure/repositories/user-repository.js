@@ -5,6 +5,7 @@ const { AlreadyRegisteredEmailError, AlreadyRegisteredUsernameError, Organizatio
 const User = require('../../domain/models/User');
 const PixRole = require('../../domain/models/PixRole');
 const Membership = require('../../domain/models/Membership');
+const OrganizationUserInformations = require('../../domain/models/OrganizationUserInformations');
 const CertificationCenter = require('../../domain/models/CertificationCenter');
 const CertificationCenterMembership = require('../../domain/models/CertificationCenterMembership');
 const Organization = require('../../domain/models/Organization');
@@ -41,6 +42,20 @@ function _toMembershipsDomain(membershipsBookshelf) {
   });
 }
 
+function _toOrganizationUserInformationsDomain(organizationUserInformationsBookshelf) {
+  return new OrganizationUserInformations({
+    id: organizationUserInformationsBookshelf.get('id'),
+    currentOrganization: new Organization({
+      id: organizationUserInformationsBookshelf.related('currentOrganization').get('id'),
+      code: organizationUserInformationsBookshelf.related('currentOrganization').get('code'),
+      name: organizationUserInformationsBookshelf.related('currentOrganization').get('name'),
+      type: organizationUserInformationsBookshelf.related('currentOrganization').get('type'),
+      isManagingStudents: Boolean(organizationUserInformationsBookshelf.related('currentOrganization').get('isManagingStudents')),
+      externalId: organizationUserInformationsBookshelf.related('currentOrganization').get('externalId')
+    }),
+  });
+}
+
 function _toPixRolesDomain(pixRolesBookshelf) {
   return pixRolesBookshelf.map((pixRoleBookshelf) => {
     return new PixRole({
@@ -65,6 +80,7 @@ function _toDomain(userBookshelf) {
     certificationCenterMemberships: _toCertificationCenterMembershipsDomain(userBookshelf.related('certificationCenterMemberships')),
     pixRoles: _toPixRolesDomain(userBookshelf.related('pixRoles')),
     hasSeenAssessmentInstructions: Boolean(userBookshelf.get('hasSeenAssessmentInstructions')),
+    organizationUserInformations: _toOrganizationUserInformationsDomain(userBookshelf.related('organizationUserInformations'))
   });
 }
 
@@ -86,7 +102,7 @@ function _adaptModelToDb(user) {
   return _.omit(user, [
     'id', 'campaignParticipations', 'pixRoles', 'memberships',
     'certificationCenterMemberships', 'pixScore', 'knowledgeElements',
-    'scorecards',
+    'scorecards', 'organizationUserInformations'
   ]);
 }
 
@@ -185,6 +201,23 @@ module.exports = {
           throw new UserNotFoundError(`User not found for ID ${userId}`);
         }
         throw err;
+      });
+  },
+
+  getWithOrganizationInformations(userId) {
+    return BookshelfUser
+      .where({ id: userId })
+      .fetch({
+        withRelated: [
+          'organizationUserInformations',
+          'organizationUserInformations.currentOrganization',
+        ]
+      })
+      .then((foundUser) => {
+        if (foundUser === null) {
+          return Promise.reject(new UserNotFoundError(`User not found for ID ${userId}`));
+        }
+        return _toDomain(foundUser);
       });
   },
 
