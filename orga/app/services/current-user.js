@@ -19,7 +19,7 @@ export default Service.extend({
 
         if (organizationUserInformations) {
           const currentOrganization = await organizationUserInformations.get('organization');
-          return this.setMainOrganization(currentOrganization.id);
+          return this._setMainOrganization(currentOrganization.id);
         }
 
         const firstMembership = await userMemberships.get('firstObject');
@@ -32,7 +32,7 @@ export default Service.extend({
     }
   },
 
-  async setMainOrganization(organizationId) {
+  async _setMainOrganization(organizationId) {
     const user = this.get('user');
     const memberships = await user.get('memberships').toArray();
     for (const membership of memberships) {

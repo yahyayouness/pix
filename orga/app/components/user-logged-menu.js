@@ -7,6 +7,7 @@ export default Component.extend({
   classNames: ['logged-user-container'],
 
   currentUser: service(),
+  store: service(),
   router: service(),
 
   isMenuOpen: false,
@@ -42,8 +43,20 @@ export default Component.extend({
       this.set('isMenuOpen', false);
     },
 
-    async onOrganizationChange(organizationId) {
-      await this.currentUser.setMainOrganization(organizationId);
+    async onOrganizationChange(organization) {
+      const user = this.currentUser.user;
+      const userId = user.get('id');
+      const organizationUserInformationsId = user.organizationUserInformations.get('id');
+
+      const organizationUserInformation = await this.store.peekRecord('organization-user-information', organizationUserInformationsId);
+      const newOrga = await this.store.peekRecord('organization', organization.get('id'));
+
+      organizationUserInformation.set('organization', newOrga);
+
+      organizationUserInformation.save({ adapterOptions: { userId } });
+
+      await this.currentUser.load();
+
       this.router.replaceWith('/');
     }
   }

@@ -219,7 +219,7 @@ module('Unit | Service | current-user', function(hooks) {
       const organizationId = 2;
 
       // When
-      await currentUser.setMainOrganization(organizationId);
+      await currentUser._setMainOrganization(organizationId);
 
       // Then
       assert.equal(currentUser.organization.id, organizationId);
@@ -232,7 +232,7 @@ module('Unit | Service | current-user', function(hooks) {
       const organizationId = 3;
 
       // When
-      await currentUser.setMainOrganization(organizationId);
+      await currentUser._setMainOrganization(organizationId);
 
       // Then
       assert.equal(currentUser.organization.id, 1);

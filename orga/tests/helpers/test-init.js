@@ -54,7 +54,10 @@ export function createUserWithMultipleMemberships() {
     userId: user.id
   });
 
+  server.create('organization-user-information', { organization: firstOrganization, user });
+
   user.memberships = [firstMembership, secondMembership];
+
   return user;
 }
 

@@ -208,4 +208,15 @@ export default function() {
     return schema.users.find(1);
   });
 
+  this.put('/users/:id/update-current-organization', (schema, request) => {
+    const body = JSON.parse(request.requestBody);
+    const user = schema.users.find(request.params.id);
+    const organization = schema.organizations.find(body.data.relationships.organization.data.id);
+    const organizationUserInformations = schema.organizationUserInformation.findBy({ userId: user.id });
+
+    organizationUserInformations.update({ organization });
+
+    return new Response(204);
+  });
+
 }
