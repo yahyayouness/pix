@@ -66,15 +66,7 @@
 
     <div class="skill-review-result__dash-line"></div>
 
-    <div class="skill-review-result__table-header">
-      <h2 class="rounded-panel-subtitle">Vos résultats détaillés</h2>
-      <CircleChart @value={{model.campaignParticipation.campaignParticipationResult.masteryPercentage}}>
-        <span class="skill-review-table-header__circle-chart-value">
-          {{model.campaignParticipation.campaignParticipationResult.masteryPercentage}}%
-        </span>
-      </CircleChart>
-    </div>
-
+    <SkillReview::ReportHeader @masteryPercentage={{model.campaignParticipation.campaignParticipationResult.masteryPercentage}}></SkillReview::ReportHeader>
     <SkillReview::Report @competenceResults={{model.campaignParticipation.campaignParticipationResult.competenceResults}}></SkillReview::Report>
 
   </div>
