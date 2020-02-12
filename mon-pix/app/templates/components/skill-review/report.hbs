@@ -1,0 +1,32 @@
+<table class="default-table">
+  <thead>
+  <tr>
+    <th>Compétences testées</th>
+    <th>Résultats</th>
+  </tr>
+  </thead>
+  <tbody>
+  {{#each @competenceResults as |competence|}}
+    <tr>
+      <td>
+        <span class="skill-review-competence__bullet skill-review-competence__bullet--{{competence.areaColor}}">&#8226;</span>
+        <span>{{competence.name}}</span>
+      </td>
+      <td>
+        <ProgressionGauge @total={{competence.totalSkillsCountPercentage}} @value={{competence.validatedSkillsPercentage}}>
+          <p class="sr-only">Vous avez validé </p>{{competence.validatedSkillsPercentage}}%<p class="sr-only"> de la
+          compétence {{competence.name}}.</p>
+        </ProgressionGauge>
+      </td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
+
+<div class="skill-review-result__information">
+  {{fa-icon 'info-circle' class='skill-review-information__info-icon'}}
+  <div class="skill-review-information__text">
+    Si vous avez déjà effectué des parcours sur Pix, les questions auxquelles vous aviez répondu ne vous ont pas été
+    posées de nouveau. En revanche, le résultat affiché ici tient compte de l’ensemble de vos réponses.
+  </div>
+</div>
