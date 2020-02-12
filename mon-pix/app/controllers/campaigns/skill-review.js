@@ -6,6 +6,7 @@ export default Controller.extend({
   displayLoadingButton: false,
   displayErrorMessage: false,
   displayImprovementButton: false,
+
   pageTitle: 'Résultat',
 
   shouldShowPixEmploiBadge: computed('model.{campaignParticipation.campaign.targetProfile.name,campaignParticipation.campaignParticipationResult.masteryPercentage}', function() {

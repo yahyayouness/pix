@@ -18,6 +18,6 @@ export default Route.extend(AuthenticatedRouteMixin, {
     await model.campaignParticipation.belongsTo('campaignParticipationResult').reload();
     await model.campaignParticipation.belongsTo('campaign').reload({ include: 'targetProfile' });
     const improvableNextChallenge = await this.store.queryRecord('challenge', { assessmentId: model.assessment.id, tryImproving: true });
-    this.controllerFor('campaigns.skill-review').set('displayImprovementButton', !!improvableNextChallenge);
+    this.controllerFor('campaigns.skill-review').set('displayImprovementButton', !!improvableNextChallenge && !model.campaignParticipation.isShared);
   },
 });
