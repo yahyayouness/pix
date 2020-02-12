@@ -16,13 +16,7 @@
       </Badge>
     {{/if}}
 
-    <h1 class="rounded-panel-title skill-review-result__abstract">
-      Vous maîtrisez
-      <span class="skill-review-result-abstract__percentage">
-        {{model.campaignParticipation.campaignParticipationResult.masteryPercentage}}%
-      </span>
-      <br> des compétences testées.
-    </h1>
+    <SkillReview::MasteryPercentage @masteryPercentage={{model.campaignParticipation.campaignParticipationResult.masteryPercentage}}></SkillReview::MasteryPercentage>
 
     <div class="skill-review-result__share-container">
       {{#if model.campaignParticipation.isShared}}
