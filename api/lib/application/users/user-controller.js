@@ -135,5 +135,9 @@ module.exports = {
 
     return usecases.getUserWithOrganizationInformations({ userId: authenticatedUserId })
       .then((user) => organizationUserInformationsSerializer.serialize(user.organizationUserInformations));
+  },
+
+  updateCurrentOrganization(request, h) {
+    return h.response().code(204);
   }
 };

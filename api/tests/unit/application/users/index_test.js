@@ -1,9 +1,12 @@
-const { expect, sinon } = require('../../../test-helper');
+const { expect, sinon, HttpTestServer } = require('../../../test-helper');
 const Hapi = require('@hapi/hapi');
 const securityController = require('../../../../lib/interfaces/controllers/security-controller');
 const userController = require('../../../../lib/application/users/user-controller');
 const userVerification = require('../../../../lib/application/preHandlers/user-existence-verification');
 
+const moduleUnderTest = require('../../../../lib/application/users');
+
+let httpTestServer;
 let server;
 
 function startServer() {
@@ -274,6 +277,67 @@ describe('Unit | Router | user-router', () => {
       return server.inject(options).then(() => {
         // then
         sinon.assert.calledOnce(userController.getOrganizationUserInformations);
+      });
+    });
+  });
+
+  describe('PUT /api/users/{id}/update-current-organization', function() {
+
+    const userId = '12344';
+    const method = 'PUT';
+    const url = `/api/users/${userId}/update-current-organization`;
+    const auth = { credentials: { userId }, strategy: {} };
+    let payload;
+
+    beforeEach(() => {
+      payload = {
+        data: {
+          relationships: {
+            organization: {
+              data: {
+                id: 1,
+                type: 'organizations'
+              }
+            }
+          }
+        }
+      };
+      sinon.stub(userController, 'updateCurrentOrganization').callsFake((request, h) => h.response().code(204));
+      sinon.stub(securityController, 'checkRequestedUserIsAuthenticatedUser').callsFake((request, h) => h.response(true));
+
+      httpTestServer = new HttpTestServer(moduleUnderTest);
+    });
+
+    it('should exist and pass through authenticated check', async () => {
+      // when
+      const response = await httpTestServer.request(method, url, payload, auth);
+
+      // then
+      expect(response.statusCode).to.equal(204);
+    });
+
+    describe('Payload schema validation', () => {
+
+      it('should have an id', async () => {
+        // given
+        payload.data.relationships.organization.data.id = undefined;
+
+        // when
+        const response = await httpTestServer.request(method, url, payload, auth);
+
+        // then
+        expect(response.statusCode).to.equal(400);
+      });
+
+      it('should reject when id is not integer', async () => {
+        // given
+        payload.data.relationships.organization.data.id = 'test';
+
+        // when
+        const response = await httpTestServer.request(method, url, payload, auth);
+
+        // then
+        expect(response.statusCode).to.equal(400);
       });
     });
   });

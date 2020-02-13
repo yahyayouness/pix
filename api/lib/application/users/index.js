@@ -267,6 +267,39 @@ exports.register = async function(server) {
         tags: ['api', 'user', 'scorecard']
       }
     },
+    {
+      method: 'PUT',
+      path: '/api/users/{id}/update-current-organization',
+      config: {
+        pre: [{
+          method: securityController.checkRequestedUserIsAuthenticatedUser,
+          assign: 'requestedUserIsAuthenticatedUser'
+        }],
+        handler: userController.updateCurrentOrganization,
+        validate: {
+          options: {
+            allowUnknown: true
+          },
+          payload: Joi.object({
+            data: {
+              relationships: {
+                organization: {
+                  data: {
+                    id: Joi.number().required(),
+                  }
+                }
+              }
+            }
+          })
+        },
+        notes : [
+          '- **Cette route est restreinte aux utilisateurs authentifiés**\n' +
+          '- Mise à jour de l\'organisation courante de l\'utilisateur \n' +
+          '- L’id demandé doit correspondre à celui de l’utilisateur authentifié',
+        ],
+        tags: ['api', 'user', 'organization-user-informations']
+      }
+    },
   ]);
 };
 
