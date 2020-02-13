@@ -29,12 +29,13 @@ export default Controller.extend({
       return campaignParticipation.save()
         .then(() => {
           campaignParticipation.set('isShared', true);
-          this.set('displayLoadingButton', false);
         })
         .catch(() => {
           campaignParticipation.rollbackAttributes();
-          this.set('displayLoadingButton', false);
           this.set('displayErrorMessage', true);
+        })
+        .finally(() => {
+          this.set('displayLoadingButton', false);
         });
     },
 
