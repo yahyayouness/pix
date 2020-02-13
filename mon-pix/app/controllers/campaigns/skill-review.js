@@ -26,9 +26,9 @@ export default Controller.extend({
       this.set('displayErrorMessage', false);
       this.set('displayLoadingButton', true);
       const campaignParticipation = this.get('model.campaignParticipation');
-      campaignParticipation.set('isShared', true);
       return campaignParticipation.save()
         .then(() => {
+          campaignParticipation.set('isShared', true);
           this.set('displayLoadingButton', false);
         })
         .catch(() => {
