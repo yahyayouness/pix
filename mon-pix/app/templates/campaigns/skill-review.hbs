@@ -27,13 +27,13 @@
           Envoyez vos résultats à l'organisateur du parcours pour qu'il puisse vous accompagner.
         </p>
 
-        {{#if displayErrorMessage}}
+        {{#if resultSharingFailed}}
           <div class="skill-review-share__error" aria-live="polite">
             Vous ne pouvez pas encore envoyer vos résultats, nous avons encore quelques questions à vous poser.
           </div>
         {{/if}}
 
-        {{#if displayLoadingButton}}
+        {{#if isLoading}}
           <button type="button" disabled class="button button--extra-big skill-review-share__button">
             <span class="loader-in-button">&nbsp;</span>
           </button>
@@ -44,7 +44,7 @@
         {{/if}}
       {{/if}}
     </div>
-    {{#if displayImprovementButton}}
+    {{#if isAssessmentImprovable}}
       <SkillReview::ImprovementSection @improve={{action 'improvementCampaignParticipation'}}></SkillReview::ImprovementSection>
     {{/if}}
     <div class="skill-review-result__dash-line"></div>

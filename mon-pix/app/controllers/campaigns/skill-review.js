@@ -3,9 +3,9 @@ import { computed } from '@ember/object';
 
 export default Controller.extend({
 
-  displayLoadingButton: false,
-  displayErrorMessage: false,
-  displayImprovementButton: false,
+  isLoading: false,
+  resultSharingFailed: false,
+  isAssessmentImprovable: false,
 
   pageTitle: 'Résultat',
 
@@ -23,8 +23,8 @@ export default Controller.extend({
 
   actions: {
     shareCampaignParticipation() {
-      this.set('displayErrorMessage', false);
-      this.set('displayLoadingButton', true);
+      this.set('resultSharingFailed', false);
+      this.set('isLoading', true);
       const campaignParticipation = this.get('model.campaignParticipation');
       return campaignParticipation.save()
         .then(() => {
@@ -32,10 +32,10 @@ export default Controller.extend({
         })
         .catch(() => {
           campaignParticipation.rollbackAttributes();
-          this.set('displayErrorMessage', true);
+          this.set('resultSharingFailed', true);
         })
         .finally(() => {
-          this.set('displayLoadingButton', false);
+          this.set('isLoading', false);
         });
     },
 
