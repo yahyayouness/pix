@@ -587,4 +587,45 @@ describe('Unit | Controller | user-controller', () => {
       expect(usecases.resetScorecard).to.have.been.calledWith({ userId, competenceId });
     });
   });
+
+  describe('#updateCurrentOrganization', () => {
+
+    const userId = 7;
+    const organizationId = 2;
+    const payload = {
+      data: {
+        relationships: {
+          organization: {
+            data: {
+              id: organizationId,
+              type: 'organization'
+            }
+          }
+        }
+      },
+    };
+    const request = {
+      auth: { credentials: { userId } },
+      params: { id: userId },
+      payload
+    };
+
+    beforeEach(() => {
+      sinon.stub(usecases, 'updateCurrentOrganization');
+    });
+
+    it('should update current organization', async () => {
+      // given
+      usecases.updateCurrentOrganization.withArgs({
+        userId,
+        organizationId,
+      }).resolves({});
+
+      // when
+      const response = await userController.updateCurrentOrganization(request, hFake);
+
+      // then
+      expect(response.statusCode).to.equal(204);
+    });
+  });
 });

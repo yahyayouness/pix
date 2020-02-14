@@ -13,8 +13,12 @@ describe('Acceptance | Controller | users-controller-update-current-organization
 
   describe('PUT /users/:id/update-current-organization', () => {
 
+    let newOrganizationId;
+
     beforeEach(async () => {
       userId = databaseBuilder.factory.buildUser().id;
+      newOrganizationId = databaseBuilder.factory.buildOrganization().id;
+      databaseBuilder.factory.buildOrganizationUserInformations({ userId });
       await databaseBuilder.commit();
 
       options = {
@@ -26,7 +30,7 @@ describe('Acceptance | Controller | users-controller-update-current-organization
             relationships: {
               organization: {
                 data: {
-                  id: '1',
+                  id: newOrganizationId,
                   type: 'organization'
                 }
               }

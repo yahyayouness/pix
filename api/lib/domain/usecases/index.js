@@ -152,6 +152,7 @@ module.exports = injectDependencies({
   updateCampaign: require('./update-campaign'),
   unarchiveCampaign: require('./unarchive-campaign'),
   updateCertificationPublicationStatus: require('./update-certification-publication-status'),
+  updateCurrentOrganization: require('./update-current-organization'),
   updateMembershipRole: require('./update-membership-role'),
   updateOrganizationInformation: require('./update-organization-information'),
   updateSession: require('./update-session'),

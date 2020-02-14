@@ -137,7 +137,12 @@ module.exports = {
       .then((user) => organizationUserInformationsSerializer.serialize(user.organizationUserInformations));
   },
 
-  updateCurrentOrganization(request, h) {
+  async updateCurrentOrganization(request, h) {
+    const authenticatedUserId = request.auth.credentials.userId;
+    const organizationId = request.payload.data.relationships.organization.data.id;
+
+    await usecases.updateCurrentOrganization({ userId: authenticatedUserId, organizationId });
+
     return h.response().code(204);
   }
 };
