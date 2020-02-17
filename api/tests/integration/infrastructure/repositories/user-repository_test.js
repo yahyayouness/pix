@@ -993,4 +993,25 @@ describe('Integration | Infrastructure | Repository | UserRepository', () => {
     });
   });
 
+  describe('#updateCurrentOrganization', () => {
+
+    let userInDb;
+    let newOrganizationId;
+
+    beforeEach(async () => {
+      userInDb = databaseBuilder.factory.buildUser(userToInsert);
+      databaseBuilder.factory.buildOrganizationUserInformations({ userId: userInDb.id });
+      newOrganizationId = databaseBuilder.factory.buildOrganization().id;
+      await databaseBuilder.commit();
+    });
+
+    it('should update the current organization', async () => {
+      // when
+      const result = await userRepository.updateCurrentOrganization(userInDb.id, newOrganizationId);
+
+      // then
+      expect(result).to.equal(newOrganizationId);
+    });
+
+  });
 });

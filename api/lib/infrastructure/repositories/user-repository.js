@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const Bookshelf = require('../bookshelf');
 const BookshelfUser = require('../data/user');
+const BookshelfOrganizationUserInformations = require('../data/organization-user-informations');
 const { AlreadyRegisteredEmailError, AlreadyRegisteredUsernameError, OrganizationStudentAlreadyLinkedToUserError, UserNotFoundError } = require('../../domain/errors');
 const User = require('../../domain/models/User');
 const PixRole = require('../../domain/models/PixRole');
@@ -338,6 +339,13 @@ module.exports = {
       throw new AlreadyRegisteredUsernameError();
     }
     return username;
-  }
+  },
+
+  updateCurrentOrganization(userId, organizationId) {
+    return BookshelfOrganizationUserInformations
+      .where({ userId })
+      .save({ currentOrganizationId: organizationId }, { patch: true, method: 'update' })
+      .then((model) => model.toJSON().currentOrganizationId);
+  },
 
 };
