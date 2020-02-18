@@ -295,6 +295,12 @@ class OrganizationStudentAlreadyLinkedToUserError extends DomainError {
   }
 }
 
+class OrganizationUserInformationsCreationError extends DomainError {
+  constructor(message = 'Erreur lors de la création des informations utilisateur relatives à Pix Orga.') {
+    super(message);
+  }
+}
+
 class FileValidationError extends DomainError {
   constructor(message = 'Erreur, fichier non valide.') {
     super(message);
@@ -454,6 +460,7 @@ module.exports = {
   NotFoundError,
   ObjectValidationError,
   OrganizationStudentAlreadyLinkedToUserError,
+  OrganizationUserInformationsCreationError,
   PasswordNotMatching,
   PasswordResetDemandNotFoundError,
   SessionAlreadyFinalizedError,

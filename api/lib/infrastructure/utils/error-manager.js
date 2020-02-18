@@ -140,6 +140,9 @@ function _mapToInfrastructureError(error) {
   if (error instanceof DomainErrors.UserNotAuthorizedToUpdateStudentPasswordError) {
     return new InfraErrors.ForbiddenError(error.message);
   }
+  if (error instanceof DomainErrors.OrganizationUserInformationsCreationError) {
+    return new InfraErrors.BadRequestError(error.message);
+  }
 
   return new InfraErrors.InfrastructureError(error.message);
 }
