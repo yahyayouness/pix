@@ -41,6 +41,10 @@ given('je suis connecté à Pix Orga', () => {
   cy.login('daenerys.targaryen@pix.fr', 'pix123');
 });
 
+given(`je suis connecté à Pix Orga en tant qu'administrateur d'une organisation SCO gérant des élèves`, () => {
+  cy.login('john.snow@pix.fr', 'pix123');
+});
+
 given('je suis connecté à Pix en tant qu\'administrateur', () => {
   cy.loginAdmin('samwell.tarly@pix.fr', 'pix123');
 });

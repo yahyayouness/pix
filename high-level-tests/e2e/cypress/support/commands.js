@@ -17,7 +17,7 @@ Cypress.Commands.add('login', (username, password) => {
         authenticator: 'authenticator:oauth2',
         token_type: 'bearer',
         access_token: response.body.access_token,
-        user_id: 1
+        user_id: response.body.user_id,
       }
     }));
   });
@@ -82,7 +82,7 @@ Cypress.Commands.add('visitMonPix', (url) => {
 
 Cypress.Commands.overwrite('visit', (originalFn, url, options) => {
   if (options.app === 'orga') {
-    url = 'http://localhost:4201';
+    url = 'http://localhost:4201' + url;
   }
   return originalFn(url, options);
 });
