@@ -36,6 +36,41 @@ exports.register = async function(server) {
         ],
         tags: ['api', 'organization-user-informations']
       }
+
+    },
+    {
+      method: 'PATCH',
+      path: '/api/organization-user-informations',
+      config: {
+        handler: organizationUserInformationsController.update,
+        validate: {
+          options: {
+            allowUnknown: true
+          },
+          payload: Joi.object({
+            data: {
+              relationships: {
+                organization: {
+                  data: {
+                    id: Joi.number().required(),
+                  }
+                },
+                user: {
+                  data: {
+                    id: Joi.number().required()
+                  }
+                }
+              }
+            }
+          })
+        },
+        notes: [
+          '- **Cette route est restreinte aux utilisateurs authentifiés**\n' +
+          '- Mise à jour des informations utilisateurs liées à Pix Orga\n' +
+          '- L’id dans le payload doit correspondre à celui de l’utilisateur authentifié',
+        ],
+        tags: ['api', 'organization-user-informations']
+      }
     }
   ]);
 };
