@@ -93,4 +93,46 @@ describe('Unit | Controller | organization-user-informations-controller', () => 
       });
     });
   });
+
+  describe('#update', () => {
+
+    const userId = 7;
+    const organizationId = 2;
+    const payload = {
+      data: {
+        relationships: {
+          organization: {
+            data: {
+              id: organizationId,
+              type: 'organization'
+            }
+          }
+        }
+      },
+    };
+    const request = {
+      auth: { credentials: { userId } },
+      params: { id: userId },
+      payload
+    };
+
+    beforeEach(() => {
+      sinon.stub(usecases, 'updateCurrentOrganization');
+    });
+
+    it('should update current organization', async () => {
+      // given
+      usecases.updateCurrentOrganization.withArgs({
+        userId,
+        organizationId,
+      }).resolves({});
+
+      // when
+      const response = await organizationUserInformationsController.updateCurrentOrganization(request, hFake);
+
+      // then
+      expect(response.statusCode).to.equal(204);
+    });
+  });
+
 });

@@ -1,7 +1,7 @@
-const { expect, databaseBuilder, generateValidRequestAuthorizationHeader } = require('../../../test-helper');
-const createServer = require('../../../../server');
+const { expect, databaseBuilder, generateValidRequestAuthorizationHeader } = require('../../test-helper');
+const createServer = require('../../../server');
 
-describe('Acceptance | Controller | users-controller-update-current-organization', () => {
+describe('Acceptance | Controller | organization-user-informations-controller', () => {
 
   let userId;
   let options;
@@ -11,7 +11,7 @@ describe('Acceptance | Controller | users-controller-update-current-organization
     server = await createServer();
   });
 
-  describe('PUT /users/:id/update-current-organization', () => {
+  describe('PATCH /api/organization-user-informations', () => {
 
     let newOrganizationId;
 
@@ -22,8 +22,8 @@ describe('Acceptance | Controller | users-controller-update-current-organization
       await databaseBuilder.commit();
 
       options = {
-        method: 'PUT',
-        url: `/api/users/${userId}/update-current-organization`,
+        method: 'PATCH',
+        url: '/api/organization-user-informations',
         headers: { authorization: generateValidRequestAuthorizationHeader(userId) },
         payload: {
           data: {
@@ -31,7 +31,13 @@ describe('Acceptance | Controller | users-controller-update-current-organization
               organization: {
                 data: {
                   id: newOrganizationId,
-                  type: 'organization'
+                  type: 'organizations'
+                }
+              },
+              user: {
+                data: {
+                  id: userId,
+                  type: 'users'
                 }
               }
             }
@@ -53,7 +59,7 @@ describe('Acceptance | Controller | users-controller-update-current-organization
         expect(response.statusCode).to.equal(401);
       });
 
-      it('should respond with a 403 - forbidden access - if requested user is not the same as authenticated user', async () => {
+      it('should respond with a 400 if payload user is not the same as authenticated user', async () => {
         // given
         const otherUserId = 9999;
         options.headers.authorization = generateValidRequestAuthorizationHeader(otherUserId);
@@ -62,7 +68,7 @@ describe('Acceptance | Controller | users-controller-update-current-organization
         const response = await server.inject(options);
 
         // then
-        expect(response.statusCode).to.equal(403);
+        expect(response.statusCode).to.equal(400);
       });
     });
 

@@ -18,7 +18,17 @@ module.exports = {
     return h.response(organizationUserInformationsSerializer.serialize(result)).created();
   },
 
-  update() {
-    return null;
+  async update(request, h) {
+    const authenticatedUserId = request.auth.credentials.userId;
+    const userId = request.payload.data.relationships.user.data.id;
+    const organizationId = request.payload.data.relationships.organization.data.id;
+
+    if (authenticatedUserId !== userId) {
+      throw new OrganizationUserInformationsCreationError();
+    }
+
+    await usecases.updateCurrentOrganization({ userId: authenticatedUserId, organizationId });
+
+    return h.response().code(204);
   }
 };
