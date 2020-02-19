@@ -16,8 +16,12 @@ module('Unit | Service | current-user', function(hooks) {
     hooks.beforeEach(function() {
       const connectedUserId = 1;
       connectedUser = Object.create({ id: connectedUserId });
+      const createdOrganizationUserInformations = Object.create({ organization: Object.create({ id: 1 }) });
       const storeStub = Service.create({
-        queryRecord: () => resolve(connectedUser)
+        queryRecord: () => resolve(connectedUser),
+        createRecord: () => Object.create({
+          save: () => resolve(createdOrganizationUserInformations)
+        })
       });
       const sessionStub = Service.create({
         isAuthenticated: true,
@@ -30,7 +34,8 @@ module('Unit | Service | current-user', function(hooks) {
 
     test('should load the current user', async function(assert) {
       // Given
-      connectedUser.memberships = [{ organization: [] }];
+      connectedUser.memberships = [Object.create({ organization: Object.create({}) })];
+      connectedUser.organizationUserInformations = Object.create({ organization: Object.create({}) });
 
       // When
       await currentUser.load();
@@ -39,110 +44,119 @@ module('Unit | Service | current-user', function(hooks) {
       assert.equal(currentUser.user, connectedUser);
     });
 
-    test('should load the organization', async function(assert) {
-      // Given
-      const organization = Object.create({ id: 9 });
-      connectedUser.memberships = [{ organization }];
+    module('when organizationUserInformations exists', () => {
 
-      // When
-      await currentUser.load();
+      test('should load the current organization', async function(assert) {
+        // Given
+        const organization = Object.create({ id: 9 });
+        connectedUser.memberships = [Object.create({ organization })];
+        connectedUser.organizationUserInformations = Object.create({ organization });
 
-      // Then
-      assert.equal(currentUser.organization, organization);
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.organization, organization);
+      });
+
+      test('should load the memberships', async function(assert) {
+        // Given
+        const memberships = [ Object.create({ id: 1, organization: {} }), Object.create({ id: 2, organization: {} }) ];
+        connectedUser.memberships = memberships;
+
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.memberships, memberships);
+      });
+
+      test('should set isAdminInOrganization to true', async function(assert) {
+        // Given
+        const organization = Object.create({ id: 9 });
+        const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
+        connectedUser.memberships = [membership];
+        connectedUser.organizationUserInformations = Object.create({ organization });
+
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.isAdminInOrganization, true);
+      });
+
+      test('should set isAdminInOrganization to false', async function(assert) {
+        // Given
+        const organization = Object.create({ id: 9 });
+        const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'MEMBER', isAdmin: false });
+        connectedUser.memberships = [membership];
+        connectedUser.organizationUserInformations = Object.create({ organization });
+
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.isAdminInOrganization, false);
+      });
+
+      test('should set canAccessStudentsPage to true', async function(assert) {
+        // Given
+        const organization = Object.create({ id: 9, type: 'SCO', isManagingStudents: true, isSco: true });
+        const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
+        connectedUser.memberships = [membership];
+        connectedUser.organizationUserInformations = Object.create({ organization });
+
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.canAccessStudentsPage, true);
+      });
+
+      test('should set canAccessStudentsPage to false when type is PRO', async function(assert) {
+        // Given
+        const organization = Object.create({ id: 9, type: 'PRO', isManagingStudents: true, isSco: false });
+        const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
+        connectedUser.memberships =  [membership];
+        connectedUser.organizationUserInformations = Object.create({ organization });
+
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.canAccessStudentsPage, false);
+      });
+
+      test('should set canAccessStudentsPage to false when isManagingStudents is false', async function(assert) {
+        // Given
+        const organization = Object.create({ id: 9, type: 'SCO', isManagingStudents: false, isSco: true });
+        const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
+        connectedUser.memberships = [membership];
+        connectedUser.organizationUserInformations = Object.create({ organization });
+
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.canAccessStudentsPage, false);
+      });
     });
 
-    test('should load the memberships', async function(assert) {
-      // Given
-      const memberships = [ Object.create({ id: 1, organization: {} }), Object.create({ id: 2, organization: {} }) ];
-      connectedUser.memberships = memberships;
+    module('when organizationUserInformations does not exist', () => {
 
-      // When
-      await currentUser.load();
+      test('should create the organizationUserInformations', async function(assert) {
+        // Given
+        const organization = Object.create({ id: 1 });
+        connectedUser.memberships = [Object.create({ organization })];
 
-      // Then
-      assert.equal(currentUser.memberships, memberships);
+        // When
+        await currentUser.load();
+
+        // Then
+        assert.equal(currentUser.organization, organization);
+      });
     });
 
-    test('should set isAdminInOrganization to true', async function(assert) {
-      // Given
-      const organization = Object.create({ id: 9 });
-      const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
-      connectedUser.memberships = [membership];
-
-      // When
-      await currentUser.load();
-
-      // Then
-      assert.equal(currentUser.isAdminInOrganization, true);
-    });
-
-    test('should set isAdminInOrganization to false', async function(assert) {
-      // Given
-      const organization = Object.create({ id: 9 });
-      const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'MEMBER', isAdmin: false });
-      connectedUser.memberships = [membership];
-
-      // When
-      await currentUser.load();
-
-      // Then
-      assert.equal(currentUser.isAdminInOrganization, false);
-    });
-
-    test('should set canAccessStudentsPage to true', async function(assert) {
-      // Given
-      const organization = Object.create({ id: 9, type: 'SCO', isManagingStudents: true, isSco: true });
-      const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
-      connectedUser.memberships = [membership];
-
-      // When
-      await currentUser.load();
-
-      // Then
-      assert.equal(currentUser.canAccessStudentsPage, true);
-    });
-
-    test('should set canAccessStudentsPage to false when type is PRO', async function(assert) {
-      // Given
-      const organization = Object.create({ id: 9, type: 'PRO', isManagingStudents: true, isSco: false });
-      const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
-      connectedUser.memberships =  [membership];
-
-      // When
-      await currentUser.load();
-
-      // Then
-      assert.equal(currentUser.canAccessStudentsPage, false);
-    });
-
-    test('should set canAccessStudentsPage to false when isManagingStudents is false', async function(assert) {
-      // Given
-      const organization = Object.create({ id: 9, type: 'SCO', isManagingStudents: false, isSco: true });
-      const membership = Object.create({ userId: connectedUser.id, organization, organizationRole: 'ADMIN', isAdmin: true });
-      connectedUser.memberships = [membership];
-
-      // When
-      await currentUser.load();
-
-      // Then
-      assert.equal(currentUser.canAccessStudentsPage, false);
-    });
-
-    test('should prefer organization from organizationUserInformations rather than first membership', async function(assert) {
-      // Given
-      const organization1 = Object.create({ id: 9, type: 'SCO', isManagingStudents: false, isSco: true });
-      const organization2 = Object.create({ id: 10, type: 'SCO', isManagingStudents: false, isSco: true });
-      const membership1 = Object.create({ userId: connectedUser.id, organization: organization1, organizationRole: 'ADMIN', isAdmin: true });
-      const membership2 = Object.create({ userId: connectedUser.id, organization: organization2, organizationRole: 'ADMIN', isAdmin: true });
-      connectedUser.memberships = [membership1, membership2];
-      connectedUser.organizationUserInformations = Object.create({ organization: organization2 });
-
-      // When
-      await currentUser.load();
-
-      // Then
-      assert.equal(currentUser.organization.id, organization2.id);
-    });
   });
 
   module('user is not authenticated', function() {

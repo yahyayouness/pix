@@ -10,7 +10,10 @@ export function createUserWithMembership() {
     userId: user.id
   });
 
+  const organizationUserInformations = server.create('organization-user-information', { organization, user });
+
   user.memberships = [memberships];
+  user.organizationUserInformations = organizationUserInformations;
   return user;
 }
 
@@ -27,7 +30,10 @@ export function createUserWithMembershipAndTermsOfServiceAccepted() {
     userId: user.id
   });
 
+  const organizationUserInformations = server.create('organization-user-information', { organization, user });
+
   user.memberships = [memberships];
+  user.organizationUserInformations = organizationUserInformations;
   return user;
 }
 
@@ -74,7 +80,10 @@ export function createUserMembershipWithRole(organizationRole) {
     organizationRole,
   });
 
+  const organizationUserInformations = server.create('organization-user-information', { organization, user });
+
   user.memberships = [memberships];
+  user.organizationUserInformations = organizationUserInformations;
   return user;
 }
 
@@ -97,7 +106,10 @@ export function createAdminMembershipWithNbMembers(countMembers) {
     organizationRole: 'ADMIN',
   });
 
+  const organizationUserInformations = server.create('organization-user-information', { organization, user: admin });
+
   admin.memberships[0] = adminMemberships;
+  admin.organizationUserInformations = organizationUserInformations;
 
   for (let i = 1; i < countMembers; i++) {
 
@@ -132,6 +144,9 @@ export function createUserManagingStudents(role = 'MEMBER') {
     organizationRole: role
   });
 
+  const organizationUserInformations = server.create('organization-user-information', { organization, user });
+
   user.memberships = [memberships];
+  user.organizationUserInformations = organizationUserInformations;
   return user;
 }

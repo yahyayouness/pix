@@ -17,13 +17,15 @@ export default Service.extend({
         this.set('user', user);
         this.set('memberships', userMemberships);
 
+        let currentOrganization;
         if (organizationUserInformations) {
-          const currentOrganization = await organizationUserInformations.get('organization');
-          return this._setMainOrganization(currentOrganization.id);
+          currentOrganization = await organizationUserInformations.get('organization');
+        } else {
+          currentOrganization = await userMemberships.get('firstObject').organization;
+          await this.store.createRecord('organization-user-information', { user, organization: currentOrganization })
+            .save();
         }
-
-        const firstMembership = await userMemberships.get('firstObject');
-        return this._setOrganizationValues(firstMembership);
+        return this._setMainOrganization(currentOrganization.id);
       } catch (error) {
         if (_.get(error, 'errors[0].code') === 401) {
           return this.session.invalidate();
