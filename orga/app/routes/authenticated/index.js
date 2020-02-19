@@ -6,6 +6,7 @@ export default Route.extend({
   currentUser: service(),
 
   beforeModel() {
+    debugger;
     if (this.currentUser.user.pixOrgaTermsOfServiceAccepted) {
       return this.transitionTo('authenticated.campaigns');
     } else {
