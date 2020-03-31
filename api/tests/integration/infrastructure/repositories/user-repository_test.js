@@ -507,6 +507,40 @@ describe('Integration | Infrastructure | Repository | UserRepository', () => {
     });
   });
 
+  describe('#update', () => {
+
+    let userInDb;
+
+    beforeEach(async () => {
+      userInDb = databaseBuilder.factory.buildUser(userToInsert);
+      await databaseBuilder.commit();
+    });
+
+    it('should change the user information in database', async () => {
+      // given
+      userInDb.firstName = 'edited_firstname';
+      userInDb.lastName = 'edited_lastname';
+      userInDb.email = 'edited_email';
+      userInDb.username = 'edited_username';
+
+      // when
+      const updatedUser = await userRepository.updateUserPersonalInformation(userInDb);
+
+      // then
+      const mergedUserInDb = await knex('users').where('id', userInDb.id).first();
+      expect(mergedUserInDb.firstName).to.equal('edited_firstname');
+      expect(mergedUserInDb.lastName).to.equal('edited_lastname');
+      expect(mergedUserInDb.email).to.equal('edited_email');
+      expect(mergedUserInDb.username).to.equal('edited_username');
+
+      expect(updatedUser).to.be.an.instanceof(User);
+      expect(updatedUser.firstName).to.equal('edited_firstname');
+      expect(updatedUser.lastName).to.equal('edited_lastname');
+      expect(updatedUser.email).to.equal('edited_email');
+      expect(updatedUser.username).to.equal('edited_username');
+    });
+  });
+
   describe('#isEmailAvailable', () => {
 
     let userInDb;

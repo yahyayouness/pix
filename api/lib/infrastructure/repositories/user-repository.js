@@ -236,6 +236,15 @@ module.exports = {
       .then((bookshelfUser) => bookshelfUser.toDomainEntity());
   },
 
+  async updateUserPersonalInformation(user) {
+    const rawData = _.pick(user, ['firstName', 'lastName', 'email', 'username']);
+
+    return new BookshelfUser({ id: user.id })
+      .save(rawData, { patch: true })
+      .then((model) => model.refresh())
+      .then(_toDomain);
+  },
+
   isEmailAvailable(email) {
     return BookshelfUser
       .where({ email: email.toLowerCase() })
