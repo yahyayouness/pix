@@ -12,18 +12,29 @@ const usecases = require('../../domain/usecases');
 
 module.exports = {
 
-  save(request, h) {
-
-    const reCaptchaToken = request.payload.data.attributes['recaptcha-token'];
+  async save(request, h) {
+    const { 'recaptcha-token': reCaptchaToken } = request.payload.data.attributes;
     const user = userSerializer.deserialize(request.payload);
 
-    return usecases.createUser({
-      user,
-      reCaptchaToken,
-    })
-      .then((savedUser) => {
-        return h.response(userSerializer.serialize(savedUser)).created();
-      });
+    const createdUser = await usecases.createUser({ user, reCaptchaToken });
+
+    const serializedUser = userSerializer.serialize(createdUser);
+
+    return h.response(serializedUser).created();
+  },
+
+  async updateUserPersonalInformation(request) {
+    const id = request.payload.data.id;
+    const {
+      'first-name': firstName,
+      'last-name': lastName,
+      'email': email,
+      'username': username,
+    } = request.payload.data.attributes;
+
+    const updatedUser = await usecases.updateUserPersonalInformation({ id, firstName, lastName, email, username });
+
+    return userSerializer.serialize(updatedUser);
   },
 
   getCurrentUser(request) {
@@ -90,7 +101,10 @@ module.exports = {
   async findPaginatedFilteredUsers(request) {
     const options = queryParamsUtils.extractParameters(request.query);
 
-    const { models: users, pagination } = await usecases.findPaginatedFilteredUsers({ filter: options.filter, page: options.page });
+    const { models: users, pagination } = await usecases.findPaginatedFilteredUsers({
+      filter: options.filter,
+      page: options.page
+    });
     return userSerializer.serialize(users, pagination);
   },
 

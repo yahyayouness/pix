@@ -36,6 +36,7 @@ describe('Unit | Controller | user-controller', () => {
       sinon.stub(encryptionService, 'hashPassword');
       sinon.stub(mailService, 'sendAccountCreationEmail');
       sinon.stub(usecases, 'createUser');
+      sinon.stub(usecases, 'updateUserPersonalInformation');
     });
 
     describe('when request is valid', () => {
@@ -294,7 +295,7 @@ describe('Unit | Controller | user-controller', () => {
 
     it('should return serialized UserOrgaSettings', async function() {
       // given
-      usecases.getUserWithOrgaSettings.withArgs({ userId }).resolves({ userOrgaSettings: {}  });
+      usecases.getUserWithOrgaSettings.withArgs({ userId }).resolves({ userOrgaSettings: {} });
       userOrgaSettingsSerializer.serialize.withArgs({}).returns({});
 
       // when
@@ -563,7 +564,7 @@ describe('Unit | Controller | user-controller', () => {
       sinon.stub(scorecardSerializer, 'serialize').resolves();
     });
 
-    it('should call the expected usecase', async () => {
+    it('should call the expected use case', async () => {
       // given
       const userId = '12';
       const competenceId = '875432';
@@ -585,6 +586,57 @@ describe('Unit | Controller | user-controller', () => {
 
       // then
       expect(usecases.resetScorecard).to.have.been.calledWith({ userId, competenceId });
+    });
+  });
+
+  describe('#updateUserPersonalInformation', () => {
+
+    const userId = 12345;
+    const payload = {
+      data: {
+        attributes: {
+          'first-name': 'edited_first_name',
+          'last-name': 'edited_last_name',
+          'email': 'edited_email',
+          'username': 'edited_username',
+        },
+      },
+    };
+    const request = {
+      params: {
+        id: userId,
+      },
+      payload
+    };
+
+    beforeEach(() => {
+      sinon.stub(usecases, 'updateUserPersonalInformation');
+      sinon.stub(userSerializer, 'serialize');
+
+      usecases.updateUserPersonalInformation.withArgs({
+        firstName: 'edited_first_name',
+        lastName: 'edited_last_name',
+        email: 'edited_email',
+        username: 'edited_username',
+      }).resolves('updated user');
+
+      userSerializer.serialize.withArgs('updated user').resolves();
+    });
+
+    it('should call use case updateUserPersonalInformation', async () => {
+      // when
+      await userController.updateUserPersonalInformation(request);
+
+      // then
+      expect(usecases.updateUserPersonalInformation).to.have.been.calledOnce;
+    });
+
+    it('should return a JSON API serialized user', async () => {
+      // when
+      await userController.updateUserPersonalInformation(request);
+
+      // then
+      expect(userSerializer.serialize).to.have.been.calledOnce;
     });
   });
 });
