@@ -163,5 +163,6 @@ module.exports = injectDependencies({
   updateSession: require('./update-session'),
   updateSchoolingRegistrationDependentUserPassword: require('./update-schooling-registration-dependent-user-password'),
   updateUserOrgaSettings: require('./update-user-orga-settings'),
-  updateUserPassword: require('./update-user-password')
+  updateUserPassword: require('./update-user-password'),
+  updateUserPersonalInformation: require('./update-user-personal-information'),
 });
