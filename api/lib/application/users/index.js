@@ -34,6 +34,22 @@ exports.register = async function(server) {
       }
     },
     {
+      method: 'PATCH',
+      path: '/api/users/{id}',
+      config: {
+        pre: [{
+          method: securityController.checkUserHasRolePixMaster,
+          assign: 'hasRolePixMaster'
+        }],
+        handler: userController.updateUserPersonalInformation,
+        tags: ['api', 'users'],
+        notes: [
+          '- **Cette route est restreinte aux utilisateurs authentifiés avec le rôle Pix Master**\n' +
+          '- Elle permet de mettre à jour tout ou partie des informations personnelles d’un utilisateur',
+        ]
+      }
+    },
+    {
       method: 'GET',
       path: '/api/users/me',
       config: {
