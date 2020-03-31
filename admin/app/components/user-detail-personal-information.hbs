@@ -1,0 +1,22 @@
+<section class="page-section mb_10">
+  <header class="page-section__header">
+    <h2 class="page-section__title">
+      <span class="user__first-name">{{@user.firstName}}</span>
+        <span class="user__last-name">{{@user.lastName}}</span>
+    </h2>
+  </header>
+  <div>
+    <div class="attribute email">
+      <span class="attibute__label">E-mail : </span>
+      <span class="attribute__value user__email">{{@user.email}}</span>
+    </div>
+    <div class="attribute username">
+      <span class="attibute__label">Username : </span>
+      <span class="attribute__value user__username">{{@user.username}}</span>
+    </div>
+    <div class="attribute garId">
+      <span class="attibute__label">GAR ID : </span>
+      <span class="attribute__value user__garId">{{@user.samlId}}</span>
+    </div>
+  </div>
+</section>
