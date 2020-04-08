@@ -3,6 +3,7 @@ const Bookshelf = require('../bookshelf');
 const BookshelfUser = require('../data/user');
 const { AlreadyRegisteredEmailError, AlreadyRegisteredUsernameError, SchoolingRegistrationAlreadyLinkedToUserError, UserNotFoundError } = require('../../domain/errors');
 const User = require('../../domain/models/User');
+const UserDetailsForAdmin = require('../../domain/read-models/UserDetailsForAdmin');
 const PixRole = require('../../domain/models/PixRole');
 const Membership = require('../../domain/models/Membership');
 const UserOrgaSettings = require('../../domain/models/UserOrgaSettings');
@@ -155,6 +156,33 @@ module.exports = {
         }
         throw err;
       });
+  },
+
+  async getDetailsForAdmin(userId) {
+    try {
+      const bookshelfUser = await BookshelfUser
+        .where({ id: userId })
+        .fetch({
+          require: true, withRelated: [
+            'memberships.organization',
+            'certificationCenterMemberships.certificationCenter',
+          ]
+        });
+      const userDetailsForAdmin = new UserDetailsForAdmin({
+        id: bookshelfUser.id,
+        email: bookshelfUser.get('email'),
+        username: bookshelfUser.get('username'),
+        firstName: bookshelfUser.get('firstName'),
+        lastName: bookshelfUser.get('lastName'),
+        isAuthenticatedViaGAR: !!bookshelfUser.get('samlId'),
+      });
+      return userDetailsForAdmin;
+    } catch (err) {
+      if (err instanceof BookshelfUser.NotFoundError) {
+        throw new UserNotFoundError(`User not found for ID ${userId}`);
+      }
+      throw err;
+    }
   },
 
   findPaginatedFiltered({ filter, page }) {
@@ -312,7 +340,7 @@ module.exports = {
 
     const trx = await Bookshelf.knex.transaction();
     try {
-      const [ userId ] = await trx('users').insert(userToCreate, 'id');
+      const [userId] = await trx('users').insert(userToCreate, 'id');
 
       const updatedSchoolingRegistrationsCount = await trx('schooling-registrations')
         .where('id', schoolingRegistrationId)
