@@ -61,6 +61,9 @@ const plugins = [
   {
     plugin: require('good'),
     options: {
+      includes: {
+        request: ['payload'],
+      },
       reporters: {
         console: consoleReporters,
       }
