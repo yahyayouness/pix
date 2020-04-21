@@ -261,7 +261,7 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
 
   });
 
-  describe('findByCampaignIdForSharedCampaignParticipation', () => {
+  describe('findByCampaignIdForCollectiveCampaignParticipation', () => {
     let userId, targetProfileId, campaignId;
 
     beforeEach(() => {
@@ -288,7 +288,7 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
       await databaseBuilder.commit();
 
       // when
-      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForSharedCampaignParticipation(campaignId);
+      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForCollectiveCampaignParticipation(campaignId);
 
       // then
       expect(actualKnowledgeElements[0].skillId).to.equal('12');
@@ -312,7 +312,7 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
       await databaseBuilder.commit();
 
       // when
-      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForSharedCampaignParticipation(campaignId);
+      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForCollectiveCampaignParticipation(campaignId);
 
       // then
       expect(actualKnowledgeElements).to.be.empty;
@@ -322,6 +322,7 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
       // given
       databaseBuilder.factory.buildTargetProfileSkill({ targetProfileId, skillId: 1 });
       databaseBuilder.factory.buildTargetProfileSkill({ targetProfileId, skillId: 2 });
+      databaseBuilder.factory.buildTargetProfileSkill({ targetProfileId, skillId: 3 });
       const otherUserId = databaseBuilder.factory.buildUser().id;
       databaseBuilder.factory.buildCampaignParticipation({
         userId,
@@ -349,14 +350,15 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
         id: 3,
         status: 'validated',
         userId: otherUserId,
+        skillId: 3,
       });
       await databaseBuilder.commit();
 
       // when
-      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForSharedCampaignParticipation(campaignId);
+      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForCollectiveCampaignParticipation(campaignId);
 
       // then
-      expect(_.map(actualKnowledgeElements, 'id')).to.have.members([1,2]);
+      expect(_.map(actualKnowledgeElements, 'id')).to.deep.equal([1,2]);
     });
 
     it('should return a list of knowledge elements when there are validated knowledge elements', async () => {
@@ -383,7 +385,7 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
       await databaseBuilder.commit();
 
       // when
-      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForSharedCampaignParticipation(campaignId);
+      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForCollectiveCampaignParticipation(campaignId);
 
       // then
       expect(_.map(actualKnowledgeElements, 'id')).to.deep.equal([1]);
@@ -412,10 +414,64 @@ describe('Integration | Repository | KnowledgeElementRepository', () => {
       await databaseBuilder.commit();
 
       // when
-      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForSharedCampaignParticipation(campaignId);
+      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForCollectiveCampaignParticipation(campaignId);
 
       // then
       expect(_.map(actualKnowledgeElements, 'id')).to.deep.equal([1]);
     });
+  });
+
+  describe('findByCampaignIdForIndividualCampaignParticipation', () => {
+    let userId, targetProfileId, campaignId;
+
+    beforeEach(() => {
+      targetProfileId = databaseBuilder.factory.buildTargetProfile().id;
+      userId = databaseBuilder.factory.buildUser().id;
+      campaignId = databaseBuilder.factory.buildCampaign({ targetProfileId }).id;
+    });
+
+    it('should return a list of knowledge elements for given user', async () => {
+      // given
+      databaseBuilder.factory.buildTargetProfileSkill({ targetProfileId, skillId: 1 });
+      databaseBuilder.factory.buildTargetProfileSkill({ targetProfileId, skillId: 2 });
+      databaseBuilder.factory.buildTargetProfileSkill({ targetProfileId, skillId: 3 });
+      const otherUserId = databaseBuilder.factory.buildUser().id;
+      databaseBuilder.factory.buildCampaignParticipation({
+        userId,
+        campaignId,
+        isShared: true
+      });
+      databaseBuilder.factory.buildCampaignParticipation({
+        userId: otherUserId,
+        campaignId,
+        isShared: true
+      });
+      databaseBuilder.factory.buildKnowledgeElement({
+        id: 1,
+        status: 'validated',
+        userId,
+        skillId: 1
+      });
+      databaseBuilder.factory.buildKnowledgeElement({
+        id: 2,
+        status: 'validated',
+        userId,
+        skillId: 2,
+      });
+      databaseBuilder.factory.buildKnowledgeElement({
+        id: 3,
+        status: 'validated',
+        userId: otherUserId,
+        skillId: 3,
+      });
+      await databaseBuilder.commit();
+
+      // when
+      const actualKnowledgeElements = await KnowledgeElementRepository.findByCampaignIdForIndividualCampaignParticipation({ campaignId, userId });
+
+      // then
+      expect(_.map(actualKnowledgeElements, 'id')).to.deep.equal([1,2]);
+    });
+
   });
 });
