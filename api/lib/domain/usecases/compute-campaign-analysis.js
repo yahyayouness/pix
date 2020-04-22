@@ -24,7 +24,7 @@ module.exports = async function computeCampaignAnalysis(
     competenceRepository.list(),
     tubeRepository.list(),
     targetProfileRepository.getByCampaignId(campaignId),
-    knowledgeElementRepository.findByCampaignIdForCollectiveCampaignParticipation(campaignId),
+    knowledgeElementRepository.findByCampaignIdForSharedCampaignParticipation(campaignId),
     campaignParticipationRepository.countSharedParticipationOfCampaign(campaignId)
   ]);
 

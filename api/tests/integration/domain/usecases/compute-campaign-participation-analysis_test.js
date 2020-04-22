@@ -22,7 +22,7 @@ describe('Integration | UseCase | compute-campaign-participation-analysis', () =
     competenceRepository = { list: sinon.stub() };
     targetProfileRepository = { getByCampaignId: sinon.stub() };
     tubeRepository = { list: sinon.stub() };
-    knowledgeElementRepository = { findByCampaignIdForIndividualCampaignParticipation: sinon.stub() };
+    knowledgeElementRepository = { findByCampaignIdAndUserIdForSharedCampaignParticipation: sinon.stub() };
 
     campaignParticipation = domainBuilder.buildCampaignParticipation({ campaignId, isShared: true });
   });
@@ -67,7 +67,7 @@ describe('Integration | UseCase | compute-campaign-participation-analysis', () =
         tubeRepository.list.resolves([tube, otherTube]);
         campaignRepository.checkIfUserOrganizationHasAccessToCampaign.withArgs(campaignId, userId).resolves(true);
         targetProfileRepository.getByCampaignId.withArgs(campaignId).resolves(targetProfile);
-        knowledgeElementRepository.findByCampaignIdForIndividualCampaignParticipation.withArgs({ campaignId, userId: campaignParticipation.userId }).resolves([knowledgeElementSkill1,knowledgeElementSkill2]);
+        knowledgeElementRepository.findByCampaignIdAndUserIdForSharedCampaignParticipation.withArgs({ campaignId, userId: campaignParticipation.userId }).resolves([knowledgeElementSkill1,knowledgeElementSkill2]);
 
         const expectedResult = {
           id: campaignId,

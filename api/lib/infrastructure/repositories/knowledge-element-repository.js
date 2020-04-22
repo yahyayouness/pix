@@ -107,14 +107,14 @@ module.exports = {
       });
   },
 
-  findByCampaignIdForIndividualCampaignParticipation({ campaignId, userId }) {
+  findByCampaignIdAndUserIdForSharedCampaignParticipation({ campaignId, userId }) {
     return _findByCampaignIdForSharedCampaignParticipationWhere({
       'campaign-participations.campaignId': campaignId,
       'campaign-participations.userId': userId,
     });
   },
 
-  findByCampaignIdForCollectiveCampaignParticipation(campaignId) {
+  findByCampaignIdForSharedCampaignParticipation(campaignId) {
     return _findByCampaignIdForSharedCampaignParticipationWhere({
       'campaign-participations.campaignId': campaignId
     });

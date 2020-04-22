@@ -24,12 +24,12 @@ module.exports = async function computeCampaignParticipationAnalysis(
   if (!campaignParticipation.isShared)  {
     return null;
   }
-  
+
   const [competences, tubes, targetProfile, validatedKnowledgeElements] = await Promise.all([
     competenceRepository.list(),
     tubeRepository.list(),
     targetProfileRepository.getByCampaignId(campaignId),
-    knowledgeElementRepository.findByCampaignIdForIndividualCampaignParticipation({ campaignId, userId: campaignParticipation.userId }),
+    knowledgeElementRepository.findByCampaignIdAndUserIdForSharedCampaignParticipation({ campaignId, userId: campaignParticipation.userId }),
   ]);
 
   const targetedTubeIds = _.map(targetProfile.skills, ({ tubeId }) => ({ id: tubeId }));
