@@ -20,7 +20,7 @@ import sinon from 'sinon';
 const FORM_CONTAINER = '.sign-form__container';
 const FORM_HEADER_CONTAINER = '.sign-form__header';
 const FORM_HEADER = '.sign-form-title';
-const EXPECTED_FORM_HEADER_CONTENT = 'Inscrivez-vous';
+const EXPECTED_FORM_HEADER_CONTENT = 'Sign up';
 
 const INPUT_TEXT_FIELD = '.sign-form-body__input';
 const INPUT_TEXT_FIELD_CLASS_DEFAULT = 'form-textfield__input-container--default';
@@ -31,11 +31,11 @@ const CHECKBOX_CGU_LABEL = '.signup-form__cgu-label';
 const UNCHECKED_CHECKBOX_CGU_ERROR = 'Veuillez accepter les conditions générales d\'utilisation (CGU) avant de créer un compte.';
 
 const CGU_LINK = '.signup-form__cgu .link';
-const CGU_LINK_CONTENT = 'conditions d\'utilisation de Pix';
+const CGU_LINK_CONTENT = 'Pix\'s CGU';
 
 const SUBMIT_BUTTON_CONTAINER = '.sign-form-body__bottom-button';
 const SUBMIT_BUTTON = '.button';
-const SUBMIT_BUTTON_CONTENT = 'Je m\'inscris';
+const SUBMIT_BUTTON_CONTENT = 'I sign up';
 
 const EMPTY_FIRSTNAME_ERROR_MESSAGE = 'Votre prénom n’est pas renseigné.';
 

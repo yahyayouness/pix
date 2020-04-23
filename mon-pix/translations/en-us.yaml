@@ -1,0 +1,22 @@
+signup-form:
+  text:
+    sign-up: "Sign up"
+    sign-in: "Sign in"
+    or: "or"
+    instruction:
+      marked-fields: "Marked fields"
+      be-mandatory: "are mandatory"
+    fields:
+      firstName: "First name"
+      lastName: "Last name"
+      email:
+        label: "Email"
+        help: "(ex: nom@exemple.com)"
+      password:
+        label: "Password"
+        help: "(8 char min, with uppercase, lowercase and a number)"
+      cgu: "I accept <a href='https://pix.org/conditions-generales-d-utilisation' class='link' target='_blank'>Pix's CGU</a>"
+  title:
+    mandatory: "mandatory"
+  button:
+    signup: "I sign up"

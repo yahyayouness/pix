@@ -1,0 +1,22 @@
+signup-form:
+  text:
+    sign-up: "Inscrivez-vous"
+    sign-in: "Connectez-vous à votre compte"
+    or: "ou"
+    instruction:
+      marked-fields: "Les champs marqués de"
+      be-mandatory: "sont obligatoires"
+    fields:
+      firstName: "Prénom"
+      lastName: "Nom"
+      email:
+        label: "Adresse e-mail"
+        help: "(ex: nom@exemple.fr)"
+      password:
+        label: "Mot de passe"
+        help: "(8 caractères minimum, dont une majuscule, une minuscule et un chiffre)"
+      cgu: "J'accepte les <a href='https://pix.fr/conditions-generales-d-utilisation' class='link' target='_blank'>conditions d'utilisation de Pix</a>"
+  title:
+    mandatory: "obligatoire"
+  button:
+    signup: "Je m'inscris"
