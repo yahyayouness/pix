@@ -9,10 +9,18 @@ describe('Acceptance | Page | Inscription', function() {
   setupApplicationTest();
   setupMirage();
 
+  let intl;
+
+  beforeEach(function() {
+    intl = this.owner.lookup('service:intl');
+  });
+
   it('should contain a link to "Terms of service" page', async function() {
     await visit('/inscription');
+    const cguText = intl.t('signup-form.text.fields.cgu.label');
 
-    return expect(find('.signup-form__cgu .link').getAttribute('href').trim()).to.equal('https://pix.org/conditions-generales-d-utilisation');
+    expect(find('.signup-form__cgu').innerHTML).to.contains(cguText);
+    expect(find('.signup-form__cgu .link')).to.exist;
   });
 
 });
