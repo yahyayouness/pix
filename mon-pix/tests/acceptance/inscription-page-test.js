@@ -17,7 +17,7 @@ describe('Acceptance | Page | Inscription', function() {
 
   it('should contain a link to "Terms of service" page', async function() {
     await visit('/inscription');
-    const cguText = intl.t('signup-form.text.fields.cgu.label');
+    const cguText = intl.t('signup-form.fields.cgu.label');
 
     expect(find('.signup-form__cgu').innerHTML).to.contains(cguText);
     expect(find('.signup-form__cgu .link')).to.exist;

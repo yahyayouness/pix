@@ -76,7 +76,7 @@ describe('Integration | Component | signup form', function() {
     });
 
     it('should return correct form title', function() {
-      const formTitle = intl.t('signup-form.text.sign-up');
+      const formTitle = intl.t('signup-form.title');
       expect(find(FORM_TITLE).textContent).to.equal(formTitle);
     });
 
@@ -103,7 +103,7 @@ describe('Integration | Component | signup form', function() {
 
     it('should render a submit button', function() {
       expect(findAll(SUBMIT_BUTTON)).to.have.length(1);
-      expect(find(SUBMIT_BUTTON).textContent.trim()).to.equal(intl.t('signup-form.button.signup'));
+      expect(find(SUBMIT_BUTTON).textContent.trim()).to.equal(intl.t('signup-form.actions.submit'));
       expect(find(SUBMIT_BUTTON).nodeName).to.equal('button'.toUpperCase());
     });
 
@@ -181,7 +181,7 @@ describe('Integration | Component | signup form', function() {
 
       it('should display an error message on first name field, when field is empty and focus-out', async function() {
         // given
-        const emptyFirstnameErrorMessage = intl.t('signup-form.text.fields.firstName.error');
+        const emptyFirstnameErrorMessage = intl.t('signup-form.fields.firstname.error');
         this.set('user', userEmpty);
         await render(hbs`{{signup-form user=user}}`);
 
@@ -200,7 +200,7 @@ describe('Integration | Component | signup form', function() {
 
       it('should display an error message on last name field, when field is empty and focus-out', async function() {
         // given
-        const emptyLastnameErrorMessage = intl.t('signup-form.text.fields.lastName.error');
+        const emptyLastnameErrorMessage = intl.t('signup-form.fields.lastname.error');
         this.set('user', userEmpty);
         await render(hbs`{{signup-form user=user}}`);
 
@@ -219,7 +219,7 @@ describe('Integration | Component | signup form', function() {
 
       it('should display an error message on email field, when field is empty and focus-out', async function() {
         // given
-        const emptyEmailErrorMessage = intl.t('signup-form.text.fields.email.error');
+        const emptyEmailErrorMessage = intl.t('signup-form.fields.email.error');
         this.set('user', userEmpty);
         await render(hbs`{{signup-form user=user}}`);
 
@@ -238,7 +238,7 @@ describe('Integration | Component | signup form', function() {
 
       it('should display an error message on password field, when field is empty and focus-out', async function() {
         // given
-        const incorrectPasswordErrorMessage = intl.t('signup-form.text.fields.password.error');
+        const incorrectPasswordErrorMessage = intl.t('signup-form.fields.password.error');
         this.set('user', userEmpty);
         await render(hbs`{{signup-form user=user}}`);
 
@@ -257,7 +257,7 @@ describe('Integration | Component | signup form', function() {
 
       it('should display an error message on cgu field, when cgu isn\'t accepted and form is submitted', async function() {
         // given
-        const cguErrorMessage = intl.t('signup-form.text.fields.cgu.error');
+        const cguErrorMessage = intl.t('signup-form.fields.cgu.error');
         const userWithCguNotAccepted = EmberObject.create({
           cgu: false,
           errors: ArrayProxy.create({

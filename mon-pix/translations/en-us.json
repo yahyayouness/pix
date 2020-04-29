@@ -1,0 +1,69 @@
+{
+  "utils": {
+    "mandatory": "mandatory",
+    "or": "or"
+  },
+
+  "navigation": {
+    "homepage": {
+      "link": "Homepage"
+    }
+  },
+
+  "signin-form": {
+    "error": {
+      "message": "Wrong email, identifier and/or password"
+    },
+    "fields": {
+      "login": {
+        "label": "Email or identifier"
+      },
+      "password": {
+        "label": "Password"
+      }
+    },
+    "link": "Forgotten password ?",
+    "submit": "Sign in",
+    "subtitle": {
+      "text": "Don't have a Pix account yet ?",
+      "link": "Sign up"
+    },
+    "title": "Sign in"
+  },
+
+  "signup-form": {
+    "actions": {
+      "submit": "I sign up"
+    },
+    "fields": {
+      "cgu": {
+        "error": "Please accept terms of service before you sign up",
+        "label": "I accept <a href=\"https://pix.org/conditions-generales-d-utilisation\" class=\"link\" target=\"_blank\">Pix's CGU</a>"
+      },
+      "email": {
+        "error": "Your email is invalid",
+        "help": "(ex: nom@exemple.fr)",
+        "label": "Email"
+      },
+      "firstname": {
+        "error": "Your firstname is empty.",
+        "label": "Firstname"
+      },
+      "lastname": {
+        "error": "Your lastname is empty.",
+        "label": "Last name"
+      },
+      "password": {
+        "error": "Password should have 8 characters, one uppercase and lowercase letter and one number at least.",
+        "help": "(8 char min, with uppercase, lowercase and a number)",
+        "label": "Password"
+      }
+    },
+    "instructions": "Fields marked with <abbr title=\"mandatory\" class=\"mandatory-mark\">*</abbr> are mandatory",
+    "legal-information": "By signing in, data are saved by Pix. They are kept for a maximum of 5 years since the user's last sign in, and are archived according to statutory limitation periods (5 years). They are only used by Pix and Pix's service providers. In accordance to the law « informatique et libertés », you can exercise your right of access to data and correct them by send an email at dpd@pix.fr.",
+    "subtitle": {
+      "link": "sign in"
+    },
+    "title": "Sign up"
+  }
+}
