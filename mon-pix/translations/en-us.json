@@ -1,7 +1,7 @@
 {
-  "utils": {
-    "mandatory": "mandatory",
-    "or": "or"
+  "page-title": {
+    "signin": "Sign in",
+    "suffix": "Pix"
   },
 
   "navigation": {
@@ -65,5 +65,10 @@
       "link": "sign in"
     },
     "title": "Sign up"
+  },
+
+  "utils": {
+    "mandatory": "mandatory",
+    "or": "or"
   }
 }

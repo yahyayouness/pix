@@ -1,7 +1,7 @@
 {
-  "utils": {
-    "mandatory": "obligatoire",
-    "or": "ou"
+  "page-title": {
+    "signin": "Connexion",
+    "suffix": "Pix"
   },
 
   "navigation": {
@@ -65,5 +65,10 @@
       "link": "connectez-vous à votre compte"
     },
     "title": "Inscrivez-vous"
+  },
+
+  "utils": {
+    "mandatory": "obligatoire",
+    "or": "ou"
   }
 }
