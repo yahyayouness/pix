@@ -24,10 +24,10 @@
     <div class="sign-form-body__input">
       <FormTextfield @label="{{t 'signup-form.fields.firstname.label'}}"
                      @textfieldName="firstName"
-                     @inputBindingValue={{user.firstName}}
-                     @onValidate={{action "validateInput"}}
-                     @validationStatus={{validation.firstName.status}}
-                     @validationMessage={{validation.firstName.message}}
+                     @inputBindingValue={{this.args.user.firstName}}
+                     @onValidate={{this.validateInput}}
+                     @validationStatus={{this.validation.firstName.status}}
+                     @validationMessage={{this.validation.firstName.message}}
                      @autocomplete="given-name"
                      @require={{true}} />
     </div>
@@ -35,21 +35,21 @@
     <div class="sign-form-body__input">
       <FormTextfield @label="{{t 'signup-form.fields.lastname.label'}}"
                      @textfieldName="lastName"
-                     @inputBindingValue={{user.lastName}}
-                     @onValidate={{action "validateInput"}}
-                     @validationStatus={{validation.lastName.status}}
-                     @validationMessage={{validation.lastName.message}}
-                     @autocomplete="family-name" @require={{true}} />
+                     @inputBindingValue={{this.args.user.lastName}}
+                     @validationStatus={{this.validation.lastName.status}}
+                     @validationMessage={{this.validation.lastName.message}}
+                     @autocomplete="family-name" @require={{true}}
+                    {{on 'validate' this.validateInput}}/>
     </div>
 
     <div class="sign-form-body__input">
       <FormTextfield @label="{{t 'signup-form.fields.email.label'}}"
                      @help="{{t 'signup-form.fields.email.help'}}"
                      @textfieldName="email"
-                     @validationStatus={{validation.email.status}}
-                     @onValidate={{action "validateInputEmail"}}
-                     @inputBindingValue={{user.email}}
-                     @validationMessage={{validation.email.message}}
+                     @validationStatus={{this.validation.email.status}}
+                     @onValidate={{this.validateInputEmail}}
+                     @inputBindingValue={{this.args.user.email}}
+                     @validationMessage={{this.validation.email.message}}
                      @autocomplete="email" @require={{true}} />
     </div>
 
@@ -58,8 +58,8 @@
                      @help="{{t 'signup-form.fields.password.help'}}"
                      @textfieldName="password"
                      @validationStatus={{validation.password.status}}
-                     @onValidate={{action "validateInputPassword"}}
-                     @inputBindingValue={{user.password}}
+                     @onValidate={{this.validateInputPassword}}
+                     @inputBindingValue={{this.args.user.password}}
                      @validationMessage={{validation.password.message}}
                      @autocomplete="new-password"
                      @require={{true}} />
@@ -68,11 +68,11 @@
     <div class="signup-form__cgu-container">
       <label for="pix-cgu" class="signup-form__cgu-label">
         <div class="signup-form__cgu">
-          <Input @type="checkbox" @id="pix-cgu" @checked={{user.cgu}} />
+          <Input @type="checkbox" @id="pix-cgu" @checked={{this.args.user.cgu}} />
            {{t 'signup-form.fields.cgu.label' htmlSafe=true}}
         </div>
 
-        {{#if user.errors.cgu}}
+        {{#if this.args.user.errors.cgu}}
           <div class="sign-form__validation-error">
             {{t 'signup-form.fields.cgu.error'}}
           </div>
@@ -80,12 +80,12 @@
       </label>
     </div>
 
-    {{#if isRecaptchaEnabled}}
+    {{#if this.isRecaptchaEnabled}}
       <div class="signup-form__captcha-container">
-        {{#if user.errors.recaptchaToken}}
-          <div class="sign-form__validation-error">{{user.errors.recaptchaToken.firstObject.message}}</div>
+        {{#if this.args.user.errors.recaptchaToken}}
+          <div class="sign-form__validation-error">{{this.args.user.errors.recaptchaToken.firstObject.message}}</div>
         {{/if}}
-        <GRecaptcha @recaptchaToken={{user.recaptchaToken}} @tokenHasBeenUsed={{_tokenHasBeenUsed}} />
+        <GRecaptcha @recaptchaToken={{this.args.user.recaptchaToken}} @tokenHasBeenUsed={{_tokenHasBeenUsed}} />
       </div>
     {{/if}}
 

@@ -36,7 +36,7 @@ const SUBMIT_BUTTON = '.button';
 const userEmpty = EmberObject.create({});
 const CAPTCHA_CONTAINER = '.signup-form__captcha-container';
 
-describe('Integration | Component | signup form', function() {
+describe.only('Integration | Component | signup form', function() {
 
   setupRenderingTest();
   let intl;
@@ -52,11 +52,10 @@ describe('Integration | Component | signup form', function() {
     ].forEach(function(testCase) {
       it(`${testCase.locale}`, async function() {
         const expectedTitle = testCase.expectedFormTitle;
-        this.set('user', userEmpty);
         intl.setLocale(testCase.locale);
 
         // when
-        await render(hbs`{{signup-form user=user}}`);
+        await render(hbs`<SignupForm @user={{userEmpty}}></SignupForm>`);
 
         // then
         expect(find(FORM_TITLE).textContent).to.equal(expectedTitle);
@@ -134,7 +133,8 @@ describe('Integration | Component | signup form', function() {
         this.set('authenticateUser', () => {});
 
         this.set('user', user);
-        await render(hbs`{{signup-form user=user signup="signup" authenticateUser=(action authenticateUser)}}`);
+        await render(hbs`<SignupForm @user={{this.user}} @authenticateUser={{this.authenticateUser}}></SignupForm>`);
+        // await render(hbs`<SignupForm @user={{this.user}} @signup="signup" @authenticateUser=(action authenticateUser)></SignupForm>`);
 
         // when
         await click(SUBMIT_BUTTON);

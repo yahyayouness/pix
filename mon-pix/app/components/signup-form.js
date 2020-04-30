@@ -1,5 +1,8 @@
 import { inject as service } from '@ember/service';
-import Component from '@ember/component';
+import { action } from '@ember/object';
+import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
+import classic from 'ember-classic-decorator';
 import isEmailValid from 'mon-pix/utils/email-validator';
 import isPasswordValid from '../utils/password-validator';
 import ENV from 'mon-pix/config/environment';
@@ -11,46 +14,49 @@ const ERROR_INPUT_MESSAGE_MAP = {
   password: 'signup-form.fields.password.error'
 };
 
-export default Component.extend({
+@classic
+export default class SignupForm extends Component {
 
-  session: service(),
-  intl: service(),
+  @service session;
+  @service intl;
 
-  _notificationMessage: null,
-  validation: null,
-  _tokenHasBeenUsed: null,
-  urlHome: ENV.APP.HOME_HOST,
-  isRecaptchaEnabled: ENV.APP.IS_RECAPTCHA_ENABLED,
-  isLoading: false,
+  @tracked _notificationMessage = null;
+  @tracked isLoading = false;
+  @tracked validation;
 
-  init() {
-    this._super(...arguments);
-    this._resetValidationFields();
-  },
+  urlHome = ENV.APP.HOME_HOST;
+  isRecaptchaEnabled = ENV.APP.IS_RECAPTCHA_ENABLED;
+
+  _tokenHasBeenUsed = null;
+
+  constructor() {
+    super(...arguments);
+    // this._resetValidationFields();
+  }
 
   _getErrorMessage(status, key) {
     return (status === 'error') ? this.intl.t(ERROR_INPUT_MESSAGE_MAP[key]) : null;
-  },
+  }
 
   _getValidationStatus(isValidField) {
     return (isValidField) ? 'error' : 'success';
-  },
+  }
 
   _isValuePresent(value) {
     return value.trim() ? true : false;
-  },
+  }
 
   _updateValidationStatus(key, status, message) {
     const statusObject = 'validation.' + key + '.status';
     const messageObject = 'validation.' + key + '.message';
-    this.set(statusObject, status);
-    this.set(messageObject, message);
-  },
+    // this.set(statusObject, status);
+    // this.set(messageObject, message);
+  }
 
   _getModelAttributeValueFromKey(key) {
-    const userModel = this.user;
+    const userModel = this.args.user;
     return userModel.get(key);
-  },
+  }
 
   _resetValidationFields() {
     const defaultValidationObject = {
@@ -80,15 +86,15 @@ export default Component.extend({
       }
     };
 
-    this.set('validation', defaultValidationObject);
-  },
+    this.validation = defaultValidationObject;
+  }
 
   _updateInputsStatus() {
-    const errors = this.get('user.errors');
+    const errors = this.args.user.errors;
     errors.forEach(({ attribute, message }) => {
       this._updateValidationStatus(attribute, 'error', message);
     });
-  },
+  }
 
   _executeFieldValidation(key, isValid) {
     const modelAttrValue = this._getModelAttributeValueFromKey(key);
@@ -96,49 +102,51 @@ export default Component.extend({
     const status = this._getValidationStatus(isValidInput);
     const message = this._getErrorMessage(status, key);
     this._updateValidationStatus(key, status, message);
-  },
+  }
 
   _trimNamesAndEmailOfUser() {
-    const { firstName, lastName, email } = this.user;
-    this.set('user.firstName', firstName.trim());
-    this.set('user.lastName', lastName.trim());
-    this.set('user.email', email.trim());
-  },
-
-  actions: {
-
-    resetTokenHasBeenUsed() {
-      this.set('_tokenHasBeenUsed', false);
-    },
-
-    validateInput(key) {
-      this._executeFieldValidation(key, this._isValuePresent);
-    },
-
-    validateInputEmail(key) {
-      this._executeFieldValidation(key, isEmailValid);
-    },
-
-    validateInputPassword(key) {
-      this._executeFieldValidation(key, isPasswordValid);
-    },
-
-    signup() {
-      this.set('_notificationMessage', null);
-      this.set('isLoading', true);
-
-      this._trimNamesAndEmailOfUser();
-
-      this.user.save().then(() => {
-        const credentials = { login: this.get('user.email'), password: this.get('user.password') };
-        this.authenticateUser(credentials);
-        this.set('_tokenHasBeenUsed', true);
-        this.set('user.password', null);
-      }).catch(() => {
-        this._updateInputsStatus();
-        this.set('_tokenHasBeenUsed', true);
-        this.set('isLoading', false);
-      });
-    }
+    const { firstName, lastName, email } = this.args.user;
+    this.args.user.firstName = firstName.trim();
+    this.args.user.lastName = lastName.trim();
+    this.args.user.email = email.trim();
   }
-});
+
+  @action
+  resetTokenHasBeenUsed() {
+    this._tokenHasBeenUsed = false;
+  }
+
+  @action
+  validateInput(key) {
+    this._executeFieldValidation(key, this._isValuePresent);
+  }
+
+  @action
+  validateInputEmail(key) {
+    this._executeFieldValidation(key, isEmailValid);
+  }
+
+  @action
+  validateInputPassword(key) {
+    this._executeFieldValidation(key, isPasswordValid);
+  }
+
+  @action
+  signup() {
+    this._notificationMessage = null;
+    this.isLoading = true;
+
+    this._trimNamesAndEmailOfUser();
+
+    this.args.user.save().then(() => {
+      const credentials = { login: this.args.user.email, password: this.args.user.password };
+      this.authenticateUser(credentials);
+      this._tokenHasBeenUsed = true;
+      this.user.password = null;
+    }).catch(() => {
+      this._updateInputsStatus();
+      this._tokenHasBeenUsed = true;
+      this.isLoading = false;
+    });
+  }
+}
