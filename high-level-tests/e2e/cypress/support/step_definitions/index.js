@@ -87,3 +87,7 @@ then(`la page {string} est correctement affichée`, (pageName) => {
 then(`je vois {string} comme {string}`, (value, label) => {
   cy.contains(label).parent().within(() => cy.get('p').contains(value));
 });
+
+then(`je vois le nombre de Pix total à {string}`, (value) => {
+  cy.get('.hexagon-score-content__pix-score').should('contain', value);
+});
