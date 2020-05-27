@@ -91,3 +91,7 @@ then(`je vois {string} comme {string}`, (value, label) => {
 then(`je vois le nombre de Pix total à {string}`, (value) => {
   cy.get('.hexagon-score-content__pix-score').should('contain', value);
 });
+
+then(`je vois le bouton {string}`, (label) => {
+  cy.get('.button--round').should('contain', label);
+});

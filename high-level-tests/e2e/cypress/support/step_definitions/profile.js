@@ -14,3 +14,15 @@ then(`je vois un score de {string} pour la carte {string}`, (value, scorecardNam
   cy.contains('.competence-card', scorecardName).find('.score-value')
     .should('contain', value);
 });
+
+then(`je vois le nombre de Pix de la compétence à {string}`, (value) => {
+  cy.get('.score-value').should('contain', value);
+});
+
+then(`je vois le nombre de Pix restant avant le prochain niveau à {string}`, (value) => {
+  cy.get('.scorecard-details-content-right__level-info').should('contain', value);
+});
+
+then(`je vois que je peux reset la compétence dans {string} jours`, (value) => {
+  cy.get('.scorecard-details-content-right__reset-message').should('contain', value);
+});

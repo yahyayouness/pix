@@ -38,3 +38,10 @@ Fonctionnalité: Profil
 
     Lorsque je survole la carte "Mathématiques"
     Alors la page "Profil avec carte survolée commencée" est correctement affichée
+
+    Lorsque je clique sur le rond de niveau de la compétence "Mathématiques"
+    Alors la page "Compétence commencée" est correctement affichée
+    Et je vois le nombre de Pix de la compétence à "4"
+    Et je vois le nombre de Pix restant avant le prochain niveau à "4"
+    Et je vois que je peux reset la compétence dans "7" jours
+    Et je vois le bouton "Reprendre"
