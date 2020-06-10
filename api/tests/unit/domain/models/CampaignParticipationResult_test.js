@@ -2,7 +2,7 @@ const { expect, domainBuilder } = require('../../../test-helper');
 const Area = require('../../../../lib/domain/models/Area');
 const BadgeCriterion = require('../../../../lib/domain/models/BadgeCriterion');
 const CampaignParticipationResult = require('../../../../lib/domain/models/CampaignParticipationResult');
-const CompetenceResult = require('../../../../lib/domain/models/CompetenceResult');
+const CompetenceResult = require('../../../../lib/domain/read-models/CompetenceResult');
 const KnowledgeElement = require('../../../../lib/domain/models/KnowledgeElement');
 
 describe('Unit | Domain | Models | CampaignParticipationResult', () => {

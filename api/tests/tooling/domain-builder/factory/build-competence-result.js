@@ -1,4 +1,4 @@
-const CompetenceResult = require('../../../../lib/domain/models/CompetenceResult');
+const CompetenceResult = require('../../../../lib/domain/read-models/CompetenceResult');
 
 const faker = require('faker');
 

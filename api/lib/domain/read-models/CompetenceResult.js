@@ -17,9 +17,10 @@ class CompetenceResult {
     this.totalSkillsCount = totalSkillsCount;
     this.testedSkillsCount = testedSkillsCount;
     this.validatedSkillsCount = validatedSkillsCount;
+    this.masteryPercentage = this._computeMasteryPercentage();
   }
 
-  get masteryPercentage() {
+  _computeMasteryPercentage() {
     if (this.totalSkillsCount !== 0) {
       return Math.round(this.validatedSkillsCount * 100 / this.totalSkillsCount);
     } else {

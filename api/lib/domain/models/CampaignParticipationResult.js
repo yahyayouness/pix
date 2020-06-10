@@ -1,5 +1,5 @@
 const campaignParticipationService = require('../services/campaign-participation-service');
-const CompetenceResult = require('./CompetenceResult');
+const CompetenceResult = require('../read-models/CompetenceResult');
 const CampaignParticipationBadge = require('./CampaignParticipationBadge');
 
 const _ = require('lodash');
