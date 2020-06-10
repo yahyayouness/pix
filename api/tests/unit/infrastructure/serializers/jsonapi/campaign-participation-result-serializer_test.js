@@ -1,6 +1,6 @@
 const { expect, domainBuilder } = require('../../../../test-helper');
 const serializer = require('../../../../../lib/infrastructure/serializers/jsonapi/campaign-participation-result-serializer');
-const CampaignParticipationBadge = require('../../../../../lib/domain/models/CampaignParticipationBadge');
+const CampaignParticipationBadge = require('../../../../../lib/domain/read-models/CampaignParticipationBadge');
 
 describe('Unit | Serializer | JSON API | campaign-participation-result-serializer', function() {
 

@@ -1,6 +1,4 @@
-const Badge = require('./Badge.js');
-
-class CampaignParticipationBadge extends Badge {
+class CampaignParticipationBadge {
 
   constructor({
     id,
@@ -17,18 +15,19 @@ class CampaignParticipationBadge extends Badge {
     // references
     targetProfileId,
   } = {}) {
-    super({
-      id,
-      key,
-      altMessage,
-      imageUrl,
-      message,
-      badgeCriteria,
-      badgePartnerCompetences,
-      targetProfileId
-    });
-    this.partnerCompetenceResults = partnerCompetenceResults;
+    this.id = id;
+    // attributes
+    this.altMessage = altMessage;
+    this.imageUrl = imageUrl;
+    this.message = message;
+    this.key = key;
     this.isAcquired = isAcquired;
+    // includes
+    this.badgeCriteria = badgeCriteria;
+    this.badgePartnerCompetences = badgePartnerCompetences;
+    this.partnerCompetenceResults = partnerCompetenceResults;
+    // references
+    this.targetProfileId = targetProfileId;
   }
 
   static buildFrom({ badge, partnerCompetenceResults, isAcquired }) {

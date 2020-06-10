@@ -1,4 +1,4 @@
-const CampaignParticipationBadge = require('../../../../lib/domain/models/CampaignParticipationBadge');
+const CampaignParticipationBadge = require('../../../../lib/domain/read-models/CampaignParticipationBadge');
 const faker = require('faker');
 
 module.exports = function buildCampaignParticipationBadge(
