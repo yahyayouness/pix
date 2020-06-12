@@ -1,3 +1,6 @@
+const _ = require('lodash');
+const BadgeCriterion = require('../models/BadgeCriterion');
+
 class Badge {
   constructor({
     id,
@@ -23,6 +26,48 @@ class Badge {
     this.badgePartnerCompetences = badgePartnerCompetences;
     // references
     this.targetProfileId = targetProfileId;
+  }
+
+  isAcquired({ campaignParticipationResult }) {
+    return _.every(this.badgeCriteria, (criterion) => {
+      let isBadgeCriterionFulfilled = false;
+      let campaignParticipationBadge;
+
+      switch (criterion.scope) {
+        case BadgeCriterion.SCOPES.CAMPAIGN_PARTICIPATION :
+          isBadgeCriterionFulfilled = this._verifyCampaignParticipationResultMasteryPercentageCriterion(
+            campaignParticipationResult,
+            criterion.threshold
+          );
+          break;
+        case BadgeCriterion.SCOPES.EVERY_PARTNER_COMPETENCE :
+          campaignParticipationBadge = _.find(
+            campaignParticipationResult.campaignParticipationBadges,
+            (campaignParticipationBadge) => campaignParticipationBadge.id === this.id
+          );
+          if (campaignParticipationBadge) {
+            isBadgeCriterionFulfilled = this._verifyEveryPartnerCompetenceResultMasteryPercentageCriterion(
+              campaignParticipationBadge.partnerCompetenceResults,
+              criterion.threshold
+            );
+          }
+          break;
+        default:
+          isBadgeCriterionFulfilled = false;
+          break;
+      }
+
+      return isBadgeCriterionFulfilled;
+    });
+  }
+
+  _verifyCampaignParticipationResultMasteryPercentageCriterion(campaignParticipationResult, threshold) {
+    return campaignParticipationResult.masteryPercentage >= threshold;
+  }
+
+  _verifyEveryPartnerCompetenceResultMasteryPercentageCriterion(partnerCompetenceResults, threshold) {
+    return _.every(partnerCompetenceResults, (partnerCompetenceResult) =>
+      partnerCompetenceResult.masteryPercentage >= threshold);
   }
 }
 

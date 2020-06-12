@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const AssessmentCompleted = require('../events/AssessmentCompleted');
+const BadgeAcquisition = require('../models/BadgeAcquisition');
 const { checkEventType } = require('./check-event-type');
 
 const eventType = AssessmentCompleted;
@@ -7,7 +8,6 @@ const eventType = AssessmentCompleted;
 const handleBadgeAcquisition = async function({
   domainTransaction,
   event,
-  badgeCriteriaService,
   badgeAcquisitionRepository,
   badgeRepository,
   campaignParticipationResultRepository,
@@ -18,11 +18,12 @@ const handleBadgeAcquisition = async function({
     const badges = await fetchPossibleCampaignAssociatedBadges(event, badgeRepository);
     const campaignParticipationResult = await fetchCampaignParticipationResults(event, badges, campaignParticipationResultRepository);
 
-    const badgesBeingAcquired = badges.filter((badge) => isBadgeAcquired(campaignParticipationResult, badge, badgeCriteriaService));
+    const badgesBeingAcquired = badges.filter((badge) => badge.isAcquired({ campaignParticipationResult }));
     const badgesAcquisitionToCreate = badgesBeingAcquired.map((badge) => {
-      return {
-        badgeId: badge.id, userId: event.userId
-      };
+      return new BadgeAcquisition({
+        badgeId: badge.id,
+        userId: event.userId
+      });
     });
 
     if (!_.isEmpty(badgesAcquisitionToCreate)) {
@@ -42,10 +43,6 @@ async function fetchPossibleCampaignAssociatedBadges(event, badgeRepository) {
 async function fetchCampaignParticipationResults(event, campaignBadges, campaignParticipationResultRepository) {
   const acquiredBadges = [];
   return await campaignParticipationResultRepository.getByParticipationId(event.campaignParticipationId, campaignBadges, acquiredBadges);
-}
-
-function isBadgeAcquired(campaignParticipationResult, badge, badgeCriteriaService) {
-  return badgeCriteriaService.areBadgeCriteriaFulfilled({ campaignParticipationResult, badge });
 }
 
 handleBadgeAcquisition.eventType = eventType;
