@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { beforeEach, describe, it } from 'mocha';
 import { setupTest } from 'ember-mocha';
 import sinon from 'sinon';
+import createGlimmerComponent from 'mon-pix/tests/helpers/create-glimmer-component';
 
 describe('Unit | Component | feedback-panel', function() {
 
@@ -9,27 +10,32 @@ describe('Unit | Component | feedback-panel', function() {
 
   describe('#toggleFeedbackForm', function() {
 
-    it('should open form', function() {
-      // given
-      const component = this.owner.lookup('component:feedback-panel');
-      component.set('_scrollIntoFeedbackPanel', () => {});
+    let component;
+    const feedbackPanel = {
+      args: {},
+      _scrollToPanel: () => {}
+    };
 
+    beforeEach(function() {
+      component = createGlimmerComponent('component:feedback-panel', { feedbackPanel });
+    });
+
+    it('should open form', function() {
       // when
-      component.send('toggleFeedbackForm');
+      component.toggleFeedbackForm();
 
       // then
-      expect(component.isFormOpened).to.be.true;
+      expect(component.args.isFormOpened).to.be.true;
     });
 
     it('should close and reset form', function() {
       // given
-      const component = this.owner.lookup('component:feedback-panel');
-      component.set('isFormOpened', true);
-      component.set('emptyTextBoxMessageError', '10, 9, 8, ...');
-      component.set('_isSubmitted', true);
+      feedbackPanel.args.isFormOpened = true;
+      feedbackPanel.emptyTextBoxMessageError = '10, 9, 8, ...';
+      feedbackPanel._isSubmitted = true;
 
       // when
-      component.send('toggleFeedbackForm');
+      component.toggleFeedbackForm();
 
       // then
       expect(component.isFormOpened).to.be.false;
@@ -41,8 +47,13 @@ describe('Unit | Component | feedback-panel', function() {
   describe('#sendFeedback', function() {
     let feedback;
     let store;
+    let component;
+    const feedbackPanel = {
+      _scrollToPanel: () => {}
+    };
 
     beforeEach(() => {
+      component = createGlimmerComponent('component:feedback-panel', { feedbackPanel });
       feedback = {
         save: sinon.stub().resolves(null),
       };
@@ -53,13 +64,12 @@ describe('Unit | Component | feedback-panel', function() {
 
     it('should re-initialise the form correctly', async function() {
       // given
-      const component = this.owner.lookup('component:feedback-panel');
-      component.set('_category', 'CATEGORY');
-      component.set('_content', 'TEXT');
-      component.set('store', store);
+      feedback._category = 'CATEGORY';
+      feedback._content = 'TEXT';
+      feedback.store = store;
 
       // when
-      await component.send('sendFeedback');
+      await component.sendFeedback;
 
       // then
       expect(component._category).to.be.null;

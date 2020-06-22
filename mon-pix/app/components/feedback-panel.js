@@ -1,37 +1,27 @@
-import { classNames } from '@ember-decorators/component';
-import { action, computed } from '@ember/object';
+import Component from '@glimmer/component';
+import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
 import buttonStatusTypes from 'mon-pix/utils/button-status-types';
-import Component from '@ember/component';
-import classic from 'ember-classic-decorator';
 
 import { topLevelLabels, questions } from 'mon-pix/static-data/feedback-panel-issue-labels';
 
-@classic
-@classNames('feedback-panel')
 export default class FeedbackPanel extends Component {
   @service store;
-
-  assessment = null;
-  challenge = null;
 
   displayQuestionDropdown = false;
   displayTextBox = null;
   emptyTextBoxMessageError = null;
   nextCategory = null;
-  isFormOpened = false;
   quickHelpInstructions = null;
   sendButtonStatus = buttonStatusTypes.unrecorded;
-
   _category = null;
   _content = null;
   _isSubmitted = false;
   _questions = questions;
 
-  @computed('context')
   get categories() {
-    const context = this.context === 'comparison-window' ? 'displayOnlyOnChallengePage' : 'displayOnlyOnComparisonWindow';
+    const context = this.args.context === 'comparison-window' ? 'displayOnlyOnChallengePage' : 'displayOnlyOnComparisonWindow';
     return topLevelLabels.filter((label) => !label[context]);
   }
 
@@ -40,24 +30,24 @@ export default class FeedbackPanel extends Component {
   }
 
   _resetPanel() {
-    this.set('_isSubmitted', false);
-    this.set('emptyTextBoxMessageError', null);
+    this._isSubmitted = false;
+    this.emptyTextBoxMessageError = null;
   }
 
   didReceiveAttrs() {
     super.didReceiveAttrs();
     this._resetPanel();
-    this.set('_content', null);
+    this._content = null;
   }
 
   _showFeedbackActionBasedOnCategoryType(category) {
-    this.set('displayTextBox', false);
-    this.set('quickHelpInstructions', null);
+    this.displayTextBox = false;
+    this.quickHelpInstructions = null;
 
     if (category.type === 'tutorial') {
-      this.set('quickHelpInstructions', category.content);
+      this.quickHelpInstructions = category.content;
     } else if (category.type === 'textbox') {
-      this.set('displayTextBox', true);
+      this.displayTextBox = true;
     }
   }
 
@@ -70,11 +60,11 @@ export default class FeedbackPanel extends Component {
 
   @action
   toggleFeedbackForm() {
-    if (this.isFormOpened) {
-      this.set('isFormOpened', false);
+    if (this.args.isFormOpened) {
+      this.args.isFormOpened = false;
       this._resetPanel();
     } else {
-      this.set('isFormOpened', true);
+      this.args.isFormOpened = true;
       this._scrollIntoFeedbackPanel();
     }
   }
@@ -84,51 +74,51 @@ export default class FeedbackPanel extends Component {
     if (this.isSaveButtonDisabled) {
       return;
     }
-    this.set('sendButtonStatus', buttonStatusTypes.pending);
+    this.sendButtonStatus = buttonStatusTypes.pending;
     const content = this._content;
     const category = this._category;
-    const answer = this.answer ? this.answer.value : null;
+    const answer = this.args.answer ? this.args.answer.value : null;
 
     if (isEmpty(content) || isEmpty(content.trim())) {
-      this.set('emptyTextBoxMessageError', 'Vous devez saisir un message.');
+      this.emptyTextBoxMessageError = 'Vous devez saisir un message.';
       return;
     }
 
     const feedback = this.store.createRecord('feedback', {
       content,
       category,
-      assessment: this.assessment,
-      challenge: this.challenge,
+      assessment: this.args.assessment,
+      challenge: this.args.challenge,
       answer,
     });
 
     try {
       await feedback.save();
-      this.set('_isSubmitted', true);
-      this.set('_content', null);
-      this.set('_category', null);
-      this.set('nextCategory', null);
-      this.set('displayTextBox', false);
-      this.set('tutorialContent', null);
-      this.set('displayQuestionDropdown', false);
-      this.set('sendButtonStatus', buttonStatusTypes.recorded);
+      this._isSubmitted = true;
+      this._content = null;
+      this._category = null;
+      this.nextCategory = null;
+      this.displayTextBox = false;
+      this.tutorialContent = null;
+      this.displayQuestionDropdown = false;
+      this.sendButtonStatus = buttonStatusTypes.recorded;
     } catch (error) {
-      this.set('sendButtonStatus', buttonStatusTypes.unrecorded);
+      this.sendButtonStatus = buttonStatusTypes.unrecorded;
     }
   }
 
   @action
   displayCategoryOptions() {
-    this.set('displayTextBox', false);
-    this.set('quickHelpInstructions', null);
-    this.set('emptyTextBoxMessageError', null);
-    this.set('displayQuestionDropdown', false);
+    this.displayTextBox = false;
+    this.quickHelpInstructions = null;
+    this.emptyTextBoxMessageError = null;
+    this.displayQuestionDropdown = false;
 
-    this.set('nextCategory', this._questions[event.target.value]);
-    this.set('_category', event.target.value);
+    this.nextCategory = this._questions[event.target.value];
+    this._category = event.target.value;
 
     if (this.nextCategory.length > 1) {
-      this.set('displayQuestionDropdown', true);
+      this.displayQuestionDropdown = true;
     } else {
       this._showFeedbackActionBasedOnCategoryType(this.nextCategory[0]);
     }
@@ -137,13 +127,13 @@ export default class FeedbackPanel extends Component {
   @action
   showFeedback() {
     if (event.target.value === 'default') {
-      this.set('displayTextBox', false);
-      this.set('quickHelpInstructions', null);
-      this.set('emptyTextBoxMessageError', null);
+      this.displayTextBox = false;
+      this.quickHelpInstructions = null;
+      this.emptyTextBoxMessageError = null;
     }
 
-    this.set('emptyTextBoxMessageError', null);
-    this.set('_category', this.nextCategory[event.target.value].name);
+    this.emptyTextBoxMessageError = null;
+    this._category = this.nextCategory[event.target.value].name;
     this._showFeedbackActionBasedOnCategoryType(this.nextCategory[event.target.value]);
   }
 }
