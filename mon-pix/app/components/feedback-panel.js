@@ -10,17 +10,17 @@ import { topLevelLabels, questions } from 'mon-pix/static-data/feedback-panel-is
 export default class FeedbackPanel extends Component {
   @service store;
 
-  displayQuestionDropdown = false;
-  displayTextBox = null;
   emptyTextBoxMessageError = null;
-  nextCategory = null;
-  quickHelpInstructions = null;
   sendButtonStatus = buttonStatusTypes.unrecorded;
   _category = null;
   _content = null;
-  _isSubmitted = false;
   _questions = questions;
+  @tracked displayQuestionDropdown = false;
 
+  @tracked displayTextBox = null;
+  @tracked quickHelpInstructions = null;
+  @tracked nextCategory = null;
+  @tracked _isSubmitted = false;
   @tracked _isFormOpened = this.args.isFormInitiallyOpened;
 
   get categories() {
@@ -37,11 +37,11 @@ export default class FeedbackPanel extends Component {
     this.emptyTextBoxMessageError = null;
   }
 
-  didReceiveAttrs() {
-    super.didReceiveAttrs();
-    this._resetPanel();
-    this._content = null;
-  }
+  // didReceiveAttrs() {
+  //   super.didReceiveAttrs();
+  //   this._resetPanel();
+  //   this._content = null;
+  // }
 
   _showFeedbackActionBasedOnCategoryType(category) {
     this.displayTextBox = false;
