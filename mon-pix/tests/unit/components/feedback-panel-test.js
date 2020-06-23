@@ -11,34 +11,34 @@ describe('Unit | Component | feedback-panel', function() {
   describe('#toggleFeedbackForm', function() {
 
     let component;
-    const feedbackPanel = {
-      args: {},
-      _scrollToPanel: () => {}
+    const feedbackPanelArgs = {
+      isFormInitiallyOpened: false
     };
 
     beforeEach(function() {
-      component = createGlimmerComponent('component:feedback-panel', { feedbackPanel });
+      component = createGlimmerComponent('component:feedback-panel', feedbackPanelArgs);
     });
 
     it('should open form', function() {
+      // given
+      feedbackPanelArgs.isFormInitiallyOpened = false;
+
       // when
       component.toggleFeedbackForm();
 
       // then
-      expect(component.args.isFormOpened).to.be.true;
+      expect(component._isFormOpened).to.be.true;
     });
 
     it('should close and reset form', function() {
       // given
-      feedbackPanel.args.isFormOpened = true;
-      feedbackPanel.emptyTextBoxMessageError = '10, 9, 8, ...';
-      feedbackPanel._isSubmitted = true;
+      feedbackPanelArgs.isFormInitiallyOpened = true;
 
       // when
       component.toggleFeedbackForm();
 
       // then
-      expect(component.isFormOpened).to.be.false;
+      expect(component._isFormOpened).to.be.false;
       expect(component._isSubmitted).to.be.false;
       expect(component.emptyTextBoxMessageError).to.be.null;
     });
@@ -48,12 +48,9 @@ describe('Unit | Component | feedback-panel', function() {
     let feedback;
     let store;
     let component;
-    const feedbackPanel = {
-      _scrollToPanel: () => {}
-    };
 
     beforeEach(() => {
-      component = createGlimmerComponent('component:feedback-panel', { feedbackPanel });
+      component = createGlimmerComponent('component:feedback-panel');
       feedback = {
         save: sinon.stub().resolves(null),
       };

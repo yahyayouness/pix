@@ -36,7 +36,7 @@ describe('Integration | Component | feedback-panel', function() {
   setupRenderingTest();
 
   describe('Default rendering', function() {
-    context.only('when assessment is not of type certification', function() {
+    context('when assessment is not of type certification', function() {
       beforeEach(async function() {
         await render(hbs`<FeedbackPanel />`);
       });
@@ -47,7 +47,7 @@ describe('Integration | Component | feedback-panel', function() {
 
       it('should open the form view when clicking on the toggle link and the form is initially closed', async function() {
         // given
-        this.set('isFormOpened', false);
+        this.set('isFormInitiallyOpened', false);
 
         // when
         await click(TOGGLE_LINK);
@@ -58,7 +58,7 @@ describe('Integration | Component | feedback-panel', function() {
 
       it('should close the form view when clicking on the toggle link and the form is initially opened', async function() {
         // given
-        this.set('isFormOpened', true);
+        this.set('isFormInitiallyOpened', true);
 
         // when
         await click(TOGGLE_LINK);
@@ -75,7 +75,7 @@ describe('Integration | Component | feedback-panel', function() {
         });
         this.set('assessment', assessment);
 
-        await render(hbs`<FeedbackPanel @assessment={{this.assessment}} @isFormOpened=true />`);
+        await render(hbs`<FeedbackPanel @assessment={{this.assessment}} @isFormInitiallyOpened=true />`);
       });
 
       it('should display the feedback certification section', async function() {
@@ -110,7 +110,7 @@ describe('Integration | Component | feedback-panel', function() {
       this.owner.unregister('service:store');
       this.owner.register('service:store', storeStub);
 
-      await render(hbs`<FeedbackPanel @assessment=assessment @challenge=challenge @isFormOpened=true />`);
+      await render(hbs`<FeedbackPanel @assessment=assessment @challenge=challenge @isFormInitiallyOpened=true />`);
     });
 
     it('should display the "form" view', function() {
@@ -192,7 +192,7 @@ describe('Integration | Component | feedback-panel', function() {
 
     it('should display error if "content" is empty', async function() {
       // given
-      await render(hbs`<FeedbackPanel @isFormOpened=true />`);
+      await render(hbs`<FeedbackPanel @isFormInitiallyOpened=true />`);
       await fillIn('.feedback-panel__dropdown', PICK_CATEGORY_WITH_TEXTAREA);
 
       // when
@@ -204,7 +204,7 @@ describe('Integration | Component | feedback-panel', function() {
 
     it('should display error if "content" is blank', async function() {
       // given
-      await render(hbs`<FeedbackPanel @isFormOpened=true />`);
+      await render(hbs`<FeedbackPanel @isFormInitiallyOpened=true />`);
       await setContent('');
 
       // when
@@ -216,7 +216,7 @@ describe('Integration | Component | feedback-panel', function() {
 
     it('should not display error if "form" view (with error) was closed and re-opened', async function() {
       // given
-      await render(hbs`<FeedbackPanel @isFormOpened=true />`);
+      await render(hbs`<FeedbackPanel @isFormInitiallyOpened=true />`);
       await setContent('   ');
       await click(BUTTON_SEND);
 
@@ -232,7 +232,7 @@ describe('Integration | Component | feedback-panel', function() {
   it('should be reseted when challenge is changed', async function() {
     // given
     this.set('challenge', 1);
-    await render(hbs`<FeedbackPanel @challenge=challenge @isFormOpened=false />`);
+    await render(hbs`<FeedbackPanel @challenge=challenge @isFormInitiallyOpened=false />`);
     await click(TOGGLE_LINK);
     await setContent('TEST_CONTENT');
 

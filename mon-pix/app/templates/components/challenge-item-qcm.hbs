@@ -21,7 +21,7 @@
           <FaIcon @icon='lock' class='challenge-response-locked__icon' />
         </div>
       {{/if}}
-      
+
       {{#if @challenge.timer}}
         {{#if this.hasUserConfirmWarning}}
           <div class="timeout-jauge-wrapper">
@@ -52,6 +52,6 @@
 
 {{#if this.canDisplayFeedbackPanel}}
   <div class="challenge-item__feedback">
-    <FeedbackPanel @assessment={{@assessment}} @challenge={{@challenge}} @isFormOpened={{false}} />
+    <FeedbackPanel @assessment={{@assessment}} @challenge={{@challenge}} @isFormInitiallyOpened={{false}} />
   </div>
 {{/if}}

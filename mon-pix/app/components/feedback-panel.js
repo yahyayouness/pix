@@ -1,4 +1,5 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { isEmpty } from '@ember/utils';
@@ -19,6 +20,8 @@ export default class FeedbackPanel extends Component {
   _content = null;
   _isSubmitted = false;
   _questions = questions;
+
+  @tracked _isFormOpened = this.args.isFormInitiallyOpened;
 
   get categories() {
     const context = this.args.context === 'comparison-window' ? 'displayOnlyOnChallengePage' : 'displayOnlyOnComparisonWindow';
@@ -60,20 +63,17 @@ export default class FeedbackPanel extends Component {
 
   @action
   toggleFeedbackForm() {
-    if (this.args.isFormOpened) {
-      this.args.isFormOpened = false;
+    if (this._isFormOpened) {
+      this._isFormOpened = false;
       this._resetPanel();
     } else {
-      this.args.isFormOpened = true;
+      this._isFormOpened = true;
       this._scrollIntoFeedbackPanel();
     }
   }
 
   @action
   async sendFeedback() {
-    if (this.isSaveButtonDisabled) {
-      return;
-    }
     this.sendButtonStatus = buttonStatusTypes.pending;
     const content = this._content;
     const category = this._category;
