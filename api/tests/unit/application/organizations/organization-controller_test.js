@@ -111,7 +111,7 @@ describe('Unit | Application | Organizations | organization-controller', () => {
     let organization;
 
     beforeEach(() => {
-      organization = domainBuilder.buildOrganization();
+      organization = domainBuilder.buildOrganization({ type: 'SCO', email: 'sco.generic.account@example.net' });
       sinon.stub(usecases, 'updateOrganizationInformation');
       sinon.stub(organizationSerializer, 'serialize');
 
@@ -124,7 +124,8 @@ describe('Unit | Application | Organizations | organization-controller', () => {
               type: 'PRO',
               'logo-url': 'logo',
               'external-id': '02A2145V',
-              'province-code': '02A'
+              'province-code': '02A',
+              email: 'sco.generic.newaccount@example.net'
             }
           }
         }
@@ -148,7 +149,7 @@ describe('Unit | Application | Organizations | organization-controller', () => {
 
         // then
         expect(usecases.updateOrganizationInformation).to.have.been.calledOnce;
-        expect(usecases.updateOrganizationInformation).to.have.been.calledWithMatch({ id: organization.id, name: 'Acme', type: 'PRO', logoUrl: 'logo', externalId: '02A2145V', provinceCode: '02A' });
+        expect(usecases.updateOrganizationInformation).to.have.been.calledWithMatch({ id: organization.id, name: 'Acme', type: 'PRO', logoUrl: 'logo', externalId: '02A2145V', provinceCode: '02A', email: 'sco.generic.newaccount@example.net' });
       });
 
       it('should serialized organization into JSON:API', async () => {
