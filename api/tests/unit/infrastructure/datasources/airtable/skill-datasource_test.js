@@ -96,6 +96,52 @@ describe('Unit | Infrastructure | Datasource | Airtable | SkillDatasource', () =
     });
   });
 
+  describe('#findOperativeSkills', () => {
+
+    it('should query Airtable skills with empty query', async () => {
+      // given
+      sinon.stub(airtable, 'findRecords').callsFake(makeAirtableFake([]));
+
+      // when
+      await skillDatasource.findOperativeSkills();
+
+      // then
+      expect(airtable.findRecords).to.have.been.calledWith('Acquis', skillDatasource.usedFields);
+
+    });
+
+    it('should resolve an array of Skills from airTable', async () => {
+      // given
+      const
+        rawSkill1 = skillRawAirTableFixture(),
+        rawSkill2 = skillRawAirTableFixture();
+      sinon.stub(airtable, 'findRecords').callsFake(makeAirtableFake([rawSkill1, rawSkill2]));
+
+      // when
+      const foundSkills = await skillDatasource.findOperativeSkills();
+
+      // then
+      expect(_.map(foundSkills, 'id')).to.deep.equal([rawSkill1.id, rawSkill2.id]);
+
+    });
+
+    it('should resolve an array of Skills with only activated Skillfrom airTable', async () => {
+      // given
+      const
+        rawSkill1 = skillRawAirTableFixture().withActiveStatus(),
+        rawSkill2 = skillRawAirTableFixture().withArchivedStatus(),
+        rawSkill3 = skillRawAirTableFixture().withInactiveStatus();
+      sinon.stub(airtable, 'findRecords').callsFake(makeAirtableFake([rawSkill1, rawSkill2, rawSkill3]));
+
+      // when
+      const foundSkills = await skillDatasource.findOperativeSkills();
+
+      // then
+      expect(_.map(foundSkills, 'id')).to.deep.equal([rawSkill1.id, rawSkill2.id]);
+
+    });
+  });
+
   describe('#findActiveByCompetenceId', function() {
 
     beforeEach(() => {
